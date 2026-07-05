@@ -15,6 +15,7 @@
 - [done] 在工具顶部增加小白友好的核心亮点和实现逻辑介绍
 - [done] 新增 README.md，准备发布说明
 - [done] 初始化独立 Git 仓库并发布到 GitHub
-- [todo] 可选：接入 Vercel 或 GitHub Pages 做在线访问
+- [blocked] 私有仓库无法启用 GitHub Pages，等待用户确认是否公开仓库
+- [todo] 确认公开后启用 GitHub Pages，生成别人可打开的网页 URL
 - [todo] 用真实飞书文章和微信公众号后台做最终粘贴验收
 - [todo] 如图片在公众号后台失效，补充图片上传或图床流程

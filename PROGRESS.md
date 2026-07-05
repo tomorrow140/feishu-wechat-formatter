@@ -22,6 +22,7 @@
 - 已初始化独立 Git 仓库并提交。
 - 已创建 GitHub 私有仓库：https://github.com/tomorrow140/feishu-wechat-formatter
 - 已推送 `main` 分支到 GitHub。
+- 已尝试为私有仓库启用 GitHub Pages，但 GitHub 返回当前计划不支持私有仓库 Pages。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -39,13 +40,15 @@
 - 颜色处理策略：节点自己有 `color` 才保留；正文默认色固定为 `#1f2329`，不再从文档颜色列表自动推断。
 
 尚未完成事项
+- 尚未生成别人可直接打开的公开网页 URL。
+- 需要用户确认是否将 GitHub 仓库从 private 改为 public，以便启用 GitHub Pages；或用户完成 Netlify/Vercel 登录后改走对应平台部署。
 - 未在真实微信公众号后台做最终粘贴验证。
 - 未接入图片上传/图床能力，图片会保留原始 `src`。
 - 未加入导出为完整 HTML 文件的按钮，当前可复制富文本和 HTML 源码。
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 打开 GitHub 仓库确认文件展示正常；后续可接 Vercel 或 GitHub Pages 做在线访问。
+- 等用户确认是否公开 GitHub 仓库；确认后运行 `gh repo edit --visibility public --accept-visibility-change-consequences` 并启用 GitHub Pages。
 
 当前是否有未提交改动
 - `feishu-wechat-formatter/` 内当前已提交并推送到 GitHub。
@@ -61,3 +64,4 @@
 - 已验证颜色回归：示例中标题保持蓝色，首个正文段落输出 `color:#1f2329`，未再被标题蓝色污染。
 - 已验证首页 HTML 中包含新增介绍文案、流程词和原有“粘贴飞书正文”工作区。
 - 已验证 GitHub 仓库已创建并推送：`https://github.com/tomorrow140/feishu-wechat-formatter`。
+- GitHub Pages 私有仓库启用失败信息：`Your current plan does not support GitHub Pages for this repository.`
