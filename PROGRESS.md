@@ -19,6 +19,9 @@
 - 已在工具顶部新增小白友好的基础介绍，说明核心亮点和实现逻辑。
 - 已准备发布到 GitHub，确认仅发布 `feishu-wechat-formatter/` 工具目录，避免带上知识库中其它未提交文件。
 - 已新增 `README.md`，说明用途、用法和核心逻辑。
+- 已初始化独立 Git 仓库并提交。
+- 已创建 GitHub 私有仓库：https://github.com/tomorrow140/feishu-wechat-formatter
+- 已推送 `main` 分支到 GitHub。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -36,17 +39,16 @@
 - 颜色处理策略：节点自己有 `color` 才保留；正文默认色固定为 `#1f2329`，不再从文档颜色列表自动推断。
 
 尚未完成事项
-- 尚未完成 GitHub 仓库创建、提交和推送。
 - 未在真实微信公众号后台做最终粘贴验证。
 - 未接入图片上传/图床能力，图片会保留原始 `src`。
 - 未加入导出为完整 HTML 文件的按钮，当前可复制富文本和 HTML 源码。
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 在 `feishu-wechat-formatter/` 内初始化独立 Git 仓库，提交并推送到 GitHub。
+- 打开 GitHub 仓库确认文件展示正常；后续可接 Vercel 或 GitHub Pages 做在线访问。
 
 当前是否有未提交改动
-- 有，新增 `feishu-wechat-formatter/` 工具目录。
+- `feishu-wechat-formatter/` 内当前已提交并推送到 GitHub。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -58,3 +60,4 @@
 - 已验证：自动化环境下快捷键粘贴纯文本 fallback 可触发转换；富文本保留需用真实浏览器手动粘贴飞书内容继续验收。
 - 已验证颜色回归：示例中标题保持蓝色，首个正文段落输出 `color:#1f2329`，未再被标题蓝色污染。
 - 已验证首页 HTML 中包含新增介绍文案、流程词和原有“粘贴飞书正文”工作区。
+- 已验证 GitHub 仓库已创建并推送：`https://github.com/tomorrow140/feishu-wechat-formatter`。

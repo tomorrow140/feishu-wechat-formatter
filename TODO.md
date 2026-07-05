@@ -14,6 +14,7 @@
 - [done] 修复标题蓝色污染正文默认色的问题
 - [done] 在工具顶部增加小白友好的核心亮点和实现逻辑介绍
 - [done] 新增 README.md，准备发布说明
-- [doing] 初始化独立 Git 仓库并发布到 GitHub
+- [done] 初始化独立 Git 仓库并发布到 GitHub
+- [todo] 可选：接入 Vercel 或 GitHub Pages 做在线访问
 - [todo] 用真实飞书文章和微信公众号后台做最终粘贴验收
 - [todo] 如图片在公众号后台失效，补充图片上传或图床流程
