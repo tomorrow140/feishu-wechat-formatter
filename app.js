@@ -576,7 +576,7 @@ function convert() {
   const body = [...root.childNodes].map((node) => transformNode(node, profile)).join("");
   lastOutputHtml = `<section style="${styleText({
     margin: "0 auto",
-    padding: "28px 22px 34px",
+    padding: "28px 0 34px",
     "max-width": "677px",
     "box-sizing": "border-box",
     background: profile.paper,
@@ -592,7 +592,7 @@ function convert() {
 
 function renderEmpty() {
   lastOutputHtml = `<section style="${styleText({
-    padding: "32px 22px",
+    padding: "32px 0",
     background: baseDocumentStyle.paper,
     color: baseDocumentStyle.muted,
     "font-family": baseDocumentStyle.font,

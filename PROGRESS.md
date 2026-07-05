@@ -27,13 +27,12 @@
 - 已将 GitHub 仓库改为 public。
 - 已启用 GitHub Pages，发布地址：https://tomorrow140.github.io/feishu-wechat-formatter/
 - 已验证公开网页返回 HTTP 200，且页面包含工具标题、介绍文案和粘贴工作区。
+- 已按用户要求去掉公众号输出内容的整篇左右缩进，外层输出从 `padding: 28px 22px 34px` 改为 `padding: 28px 0 34px`。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
 - feishu-wechat-formatter/TODO.md
-- feishu-wechat-formatter/index.html
-- feishu-wechat-formatter/styles.css
-- feishu-wechat-formatter/README.md
+- feishu-wechat-formatter/app.js
 
 已做出的关键决策
 - 不接入飞书 API，首版走剪贴板粘贴，降低配置门槛。
@@ -53,7 +52,7 @@
 - 把公开网页 URL 发给别人测试真实飞书文档粘贴流程：https://tomorrow140.github.io/feishu-wechat-formatter/
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有本次 GitHub Pages 状态记录待提交。
+- `feishu-wechat-formatter/` 内当前有去掉输出左右缩进的改动待提交。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -68,3 +67,4 @@
 - 已验证 GitHub 仓库已创建并推送：`https://github.com/tomorrow140/feishu-wechat-formatter`。
 - GitHub Pages 私有仓库启用失败信息：`Your current plan does not support GitHub Pages for this repository.`
 - 已验证公开网页：`curl -I https://tomorrow140.github.io/feishu-wechat-formatter/` 返回 `HTTP/2 200`。
+- 已验证本地 `app.js` 中输出外层样式为 `padding: "28px 0 34px"`。
