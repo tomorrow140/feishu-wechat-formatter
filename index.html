@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>飞书转公众号排版工具</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Feishu to WeChat</p>
+          <h1>飞书转公众号排版工具</h1>
+        </div>
+        <div class="topbar-actions" aria-label="全局操作">
+          <button class="ghost-button" id="loadSample" type="button">载入示例</button>
+          <button class="primary-button" id="copyRich" type="button">复制到公众号</button>
+        </div>
+      </header>
+
+      <section class="intro-band" aria-labelledby="introTitle">
+        <div class="intro-copy">
+          <p class="panel-kicker">What it does</p>
+          <h2 id="introTitle">把飞书格式翻译成公众号更认识的格式</h2>
+          <p>
+            直接从飞书粘贴到公众号时，很多格式靠公众号后台自己猜，容易丢颜色、行距、引用和表格。
+            这个工具会先把飞书复制出来的内容整理一遍，再复制成公众号更稳定的富文本。
+          </p>
+        </div>
+        <div class="intro-points" aria-label="核心亮点">
+          <div>
+            <strong>保留原文样子</strong>
+            <span>标题颜色、正文黑色、加粗、高亮、引用块会尽量按飞书原文保留。</span>
+          </div>
+          <div>
+            <strong>清掉多余杂质</strong>
+            <span>去掉飞书自己的隐藏标记，只留下公众号更容易接受的内容和样式。</span>
+          </div>
+          <div>
+            <strong>重新打包复制</strong>
+            <span>把结果变成带 style 的 HTML，再用富文本方式放进剪贴板。</span>
+          </div>
+        </div>
+        <div class="intro-flow" aria-label="实现逻辑">
+          <span>飞书富文本</span>
+          <span>清洗</span>
+          <span>补齐样式</span>
+          <span>公众号富文本</span>
+        </div>
+      </section>
+
+      <main class="workspace">
+        <section class="panel source-panel" aria-labelledby="sourceTitle">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">01 / Paste</p>
+              <h2 id="sourceTitle">粘贴飞书正文</h2>
+            </div>
+            <div class="tool-row">
+              <button class="icon-button" id="pasteButton" type="button" title="读取剪贴板">粘贴</button>
+              <button class="icon-button" id="clearButton" type="button" title="清空内容">清空</button>
+            </div>
+          </div>
+          <div
+            id="rawEditor"
+            class="raw-editor"
+            contenteditable="true"
+            spellcheck="false"
+            data-placeholder="从飞书文档全选复制后，直接粘贴到这里。"
+            aria-label="粘贴飞书正文"
+          ></div>
+        </section>
+
+        <aside class="format-rail" aria-labelledby="formatTitle">
+          <div class="panel-head compact">
+            <div>
+              <p class="panel-kicker">02 / Read</p>
+              <h2 id="formatTitle">格式识别</h2>
+            </div>
+          </div>
+          <div id="formatReport" class="format-report" aria-live="polite">
+            <div class="empty-report">粘贴飞书文档后，会在这里显示识别到的样式。</div>
+          </div>
+          <div class="stats">
+            <span id="wordCount">0 字</span>
+            <span id="blockCount">0 段</span>
+          </div>
+        </aside>
+
+        <section class="panel preview-panel" aria-labelledby="previewTitle">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">03 / Preview</p>
+              <h2 id="previewTitle">公众号预览</h2>
+            </div>
+            <div class="tool-row">
+              <button class="ghost-button" id="copyHtml" type="button">复制 HTML</button>
+              <button class="primary-button" id="copyRichSecondary" type="button">复制富文本</button>
+            </div>
+          </div>
+          <div class="preview-wrap">
+            <article id="preview" class="wechat-preview" aria-live="polite"></article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="statusbar">
+        <span id="statusText">准备好了：粘贴飞书正文后会自动转换。</span>
+      </footer>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
