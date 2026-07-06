@@ -424,8 +424,8 @@ function headingHtml(tag, content, sourceStyle, profile) {
     const smartDefaults = {
       1: {
         margin: "0 0 26px",
-        color: profile.ink,
-        "font-size": "26px",
+        color: profile.accent,
+        "font-size": "32px",
         "line-height": "1.38",
         "font-weight": "800",
         "letter-spacing": "0",
@@ -435,7 +435,7 @@ function headingHtml(tag, content, sourceStyle, profile) {
       2: {
         margin: "30px 0 16px",
         color: profile.accent,
-        "font-size": "20px",
+        "font-size": "24px",
         "line-height": "1.48",
         "font-weight": "800",
         "letter-spacing": "0",
@@ -444,8 +444,8 @@ function headingHtml(tag, content, sourceStyle, profile) {
       },
       3: {
         margin: "24px 0 12px",
-        color: profile.ink,
-        "font-size": "17px",
+        color: profile.accent,
+        "font-size": "20px",
         "line-height": "1.55",
         "font-weight": "800",
         "letter-spacing": "0",
