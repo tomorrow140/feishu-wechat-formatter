@@ -698,7 +698,56 @@ function analyzeDocument(root) {
 
 function isNeutralColor(color) {
   const normalized = color.toLowerCase().replace(/\s/g, "");
-  return ["#000", "#000000", "#1f2329", "#333", "#333333", "rgb(0,0,0)", "rgba(0,0,0,1)"].includes(normalized);
+  if (
+    [
+      "#000",
+      "#000000",
+      "#1f2329",
+      "#333",
+      "#333333",
+      "black",
+      "gray",
+      "grey",
+      "darkgray",
+      "darkgrey",
+      "dimgray",
+      "dimgrey",
+      "rgb(0,0,0)",
+      "rgba(0,0,0,1)",
+    ].includes(normalized)
+  ) {
+    return true;
+  }
+
+  const rgb = parseColorToRgb(normalized);
+  if (!rgb) return false;
+  const max = Math.max(rgb.r, rgb.g, rgb.b);
+  const min = Math.min(rgb.r, rgb.g, rgb.b);
+  return max - min < 32;
+}
+
+function parseColorToRgb(color) {
+  const shortHex = color.match(/^#([0-9a-f]{3})$/i);
+  if (shortHex) {
+    const [r, g, b] = shortHex[1].split("").map((part) => parseInt(part + part, 16));
+    return { r, g, b };
+  }
+
+  const hex = color.match(/^#([0-9a-f]{6})$/i);
+  if (hex) {
+    return {
+      r: parseInt(hex[1].slice(0, 2), 16),
+      g: parseInt(hex[1].slice(2, 4), 16),
+      b: parseInt(hex[1].slice(4, 6), 16),
+    };
+  }
+
+  const rgb = color.match(/^rgba?\((\d+),(\d+),(\d+)(?:,[^)]+)?\)$/i);
+  if (rgb) {
+    return { r: Number(rgb[1]), g: Number(rgb[2]), b: Number(rgb[3]) };
+  }
+
+  return null;
 }
 
 function renderReport(profile) {
