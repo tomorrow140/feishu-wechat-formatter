@@ -31,16 +31,16 @@
         </div>
         <div class="intro-points" aria-label="核心亮点">
           <div>
-            <strong>保留原文样子</strong>
-            <span>标题颜色、正文黑色、加粗、高亮、引用块会尽量按飞书原文保留。</span>
+            <strong>一键公众号排版</strong>
+            <span>自动优化标题、正文行距、段落间距，让文章更适合公众号阅读。</span>
           </div>
           <div>
-            <strong>清掉多余杂质</strong>
-            <span>去掉飞书自己的隐藏标记，只留下公众号更容易接受的内容和样式。</span>
+            <strong>识别飞书重点</strong>
+            <span>加粗、标色和高亮内容会变成更醒目的重点短语或重点句。</span>
           </div>
           <div>
             <strong>重新打包复制</strong>
-            <span>把结果变成带 style 的 HTML，再用富文本方式放进剪贴板。</span>
+            <span>清掉多余标记，生成带 style 的 HTML，再用富文本方式复制。</span>
           </div>
         </div>
         <div class="intro-flow" aria-label="实现逻辑">
@@ -79,6 +79,10 @@
               <p class="panel-kicker">02 / Read</p>
               <h2 id="formatTitle">格式识别</h2>
             </div>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="排版模式">
+            <button class="mode-button active" type="button" data-format-mode="smart" role="tab" aria-selected="true">公众号排版</button>
+            <button class="mode-button" type="button" data-format-mode="source" role="tab" aria-selected="false">跟随原文</button>
           </div>
           <div id="formatReport" class="format-report" aria-live="polite">
             <div class="empty-report">粘贴飞书文档后，会在这里显示识别到的样式。</div>

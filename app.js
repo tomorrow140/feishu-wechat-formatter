@@ -1,6 +1,7 @@
 const rawEditor = document.querySelector("#rawEditor");
 const preview = document.querySelector("#preview");
 const formatReport = document.querySelector("#formatReport");
+const modeButtons = document.querySelectorAll("[data-format-mode]");
 const statusText = document.querySelector("#statusText");
 const wordCount = document.querySelector("#wordCount");
 const blockCount = document.querySelector("#blockCount");
@@ -81,16 +82,17 @@ const blockTags = new Set([
 ]);
 
 let lastOutputHtml = "";
+let currentFormatMode = "smart";
 
 const sampleHtml = `
   <h1 style="font-size: 30px; line-height: 1.35; color: #172b4d; font-weight: 800;">飞书原文格式自适应转换</h1>
-  <p style="font-size: 16px; line-height: 1.95; color: #1f2329;">这次工具不会再套固定主题，而是读取飞书文档自己带出来的颜色、字号、缩进和加粗。</p>
-  <h2 style="font-size: 21px; color: #245bdb; border-left: 5px solid #245bdb; padding-left: 12px;">适合什么场景？</h2>
-  <p style="line-height: 1.95;">同一作者的飞书模板、运营团队的固定文章格式、或者每篇风格都不同的专栏，都可以直接按原文转换。</p>
-  <blockquote style="background-color: #f2f5ff; border-left: 4px solid #245bdb; padding: 12px 16px; color: #334155;">核心原则：保留原文格式，补齐公众号需要的内联样式。</blockquote>
+  <p style="font-size: 16px; line-height: 1.95; color: #1f2329;">这次工具可以一键改成公众号更适合阅读的样子，同时识别飞书里标过的重点。</p>
+  <p style="font-size: 21px; color: #245bdb; font-weight: 800;">1、自动识别标题和重点句</p>
+  <p style="line-height: 1.95;">短标题、编号标题会变成更清楚的标题。飞书里的<strong style="color: #d83931;">加粗重点</strong>、<span style="background-color: #fff59d;">黄色高亮句子</span>会被保留下来。</p>
+  <blockquote style="background-color: #f2f5ff; border-left: 4px solid #245bdb; padding: 12px 16px; color: #334155;">核心原则：正文更耐读，重点更醒目，复制到公众号后格式更稳定。</blockquote>
   <ul style="line-height: 1.9;">
     <li><strong style="color: #d83931;">复制飞书正文</strong>，粘贴到左侧。</li>
-    <li>工具识别格式并生成右侧预览。</li>
+    <li>工具自动排版并生成右侧预览。</li>
     <li>复制富文本到公众号后台。</li>
   </ul>
 `;
@@ -187,10 +189,17 @@ function transformNode(node, profile, inline = false) {
   if (tag === "br") return "<br>";
 
   if (tag === "strong" || tag === "b") {
+    if (profile.mode === "smart") {
+      profile.keyMarks += 1;
+      return wrapInline("strong", children, smartInlineStyle(ownStyle, profile, true));
+    }
     return wrapInline("strong", children, mergeStyles({ "font-weight": "700" }, ownStyle));
   }
 
   if (tag === "em" || tag === "i") {
+    if (profile.mode === "smart") {
+      return wrapInline("em", children, mergeStyles({ color: profile.accent, "font-style": "normal" }, smartInlineStyle(ownStyle, profile)));
+    }
     return wrapInline("em", children, mergeStyles({ "font-style": "italic" }, ownStyle));
   }
 
@@ -227,10 +236,15 @@ function transformNode(node, profile, inline = false) {
   }
 
   if (tag === "span") {
+    if (profile.mode === "smart") return smartSpanHtml(children, ownStyle, profile);
     return Object.keys(ownStyle).length ? wrapInline("span", children, ownStyle) : children;
   }
 
-  if (/^h[1-6]$/.test(tag)) return headingHtml(tag, children, ownStyle, profile);
+  if (/^h[1-6]$/.test(tag)) {
+    if (tag === "h1") profile.titleAssigned = true;
+    profile.seenContent = true;
+    return headingHtml(tag, children, ownStyle, profile);
+  }
   if (tag === "blockquote") return quoteHtml(children, ownStyle, profile);
   if (tag === "ul" || tag === "ol") return listHtml(node, tag, ownStyle, profile);
   if (tag === "li") return listItemHtml(children, ownStyle, profile);
@@ -239,7 +253,14 @@ function transformNode(node, profile, inline = false) {
   if (tag === "table") return tableHtml(node, ownStyle, profile);
   if (tag === "hr") return `<hr style="${styleText(mergeStyles({ margin: "24px 0", border: "0", "border-top": `1px solid ${profile.accent}` }, ownStyle))}">`;
 
-  if (tag === "p") return paragraphHtml(children, ownStyle, profile);
+  if (tag === "p") {
+    if (profile.mode === "smart") {
+      const promoted = smartPromotedHeading(node, children, ownStyle, profile);
+      if (promoted) return promoted;
+    }
+    profile.seenContent = true;
+    return paragraphHtml(children, ownStyle, profile);
+  }
 
   if (["div", "section", "article", "main", "figure"].includes(tag)) {
     if (containsBlockElement(node)) {
@@ -254,6 +275,83 @@ function transformNode(node, profile, inline = false) {
 
 function wrapInline(tag, content, style) {
   return `<${tag} style="${styleText(style)}">${content}</${tag}>`;
+}
+
+function numericPx(value) {
+  const match = String(value || "").match(/(\d+(?:\.\d+)?)px/);
+  return match ? Number(match[1]) : 0;
+}
+
+function fontWeightValue(style) {
+  const weight = String(style["font-weight"] || "").toLowerCase();
+  if (weight === "bold") return 700;
+  const parsed = Number(weight);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function isSoftBackground(color) {
+  if (!color) return false;
+  const normalized = color.toLowerCase().replace(/\s/g, "");
+  return !["transparent", "none", "#fff", "#ffffff", "rgb(255,255,255)", "rgba(255,255,255,1)"].includes(normalized);
+}
+
+function isMarkedStyle(style, profile) {
+  return (
+    isSoftBackground(style["background-color"]) ||
+    fontWeightValue(style) >= 600 ||
+    (style.color && !isNeutralColor(style.color) && style.color !== profile.ink)
+  );
+}
+
+function smartInlineStyle(sourceStyle, profile, strong = false) {
+  const marked = isMarkedStyle(sourceStyle, profile) || strong;
+  if (isSoftBackground(sourceStyle["background-color"])) {
+    return {
+      color: profile.ink,
+      "background-color": "#fff59d",
+      padding: "1px 4px",
+      "border-radius": "3px",
+      "font-weight": "700",
+    };
+  }
+  if (marked) {
+    return {
+      color: sourceStyle.color && !isNeutralColor(sourceStyle.color) ? sourceStyle.color : profile.accent,
+      "font-weight": "700",
+    };
+  }
+  return {};
+}
+
+function smartSpanHtml(children, sourceStyle, profile) {
+  if (!Object.keys(sourceStyle).length) return children;
+  if (!isMarkedStyle(sourceStyle, profile)) return children;
+  profile.keyMarks += 1;
+  return wrapInline("span", children, smartInlineStyle(sourceStyle, profile));
+}
+
+function smartPromotedHeading(node, children, sourceStyle, profile) {
+  const text = normalizeText(node.textContent).trim();
+  if (!text) return "";
+  const shortEnough = text.length <= 58;
+  const numbered = /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text);
+  const styledHeading = fontWeightValue(sourceStyle) >= 600 || numericPx(sourceStyle["font-size"]) >= 19;
+  const firstTitle = !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
+
+  if (!profile.titleAssigned && (firstTitle || (shortEnough && numericPx(sourceStyle["font-size"]) >= 24))) {
+    profile.titleAssigned = true;
+    profile.seenContent = true;
+    profile.autoHeadings += 1;
+    return headingHtml("h1", children, sourceStyle, profile);
+  }
+
+  if (shortEnough && (numbered || styledHeading)) {
+    profile.seenContent = true;
+    profile.autoHeadings += 1;
+    return headingHtml("h2", children, sourceStyle, profile);
+  }
+
+  return "";
 }
 
 function containsBlockElement(node) {
@@ -280,6 +378,31 @@ function blockContainerStyle(sourceStyle, profile) {
 }
 
 function paragraphHtml(content, sourceStyle, profile) {
+  if (profile.mode === "smart") {
+    if (isSoftBackground(sourceStyle["background-color"])) {
+      profile.keyMarks += 1;
+      return `<p style="${styleText({
+        margin: "18px 0",
+        padding: "12px 14px",
+        color: profile.ink,
+        "background-color": "#fff8cc",
+        "border-left": "4px solid #f2c94c",
+        "font-size": "16px",
+        "line-height": "1.9",
+        "letter-spacing": "0",
+      })}">${content}</p>`;
+    }
+
+    return `<p style="${styleText({
+      margin: "0 0 18px",
+      color: profile.ink,
+      "font-size": "16px",
+      "line-height": "1.95",
+      "letter-spacing": "0",
+      "text-align": "left",
+    })}">${content}</p>`;
+  }
+
   return `<p style="${styleText(
     mergeStyles(
       {
@@ -297,6 +420,40 @@ function paragraphHtml(content, sourceStyle, profile) {
 
 function headingHtml(tag, content, sourceStyle, profile) {
   const level = Number(tag.slice(1));
+  if (profile.mode === "smart") {
+    const smartDefaults = {
+      1: {
+        margin: "0 0 26px",
+        color: profile.ink,
+        "font-size": "26px",
+        "line-height": "1.38",
+        "font-weight": "800",
+        "letter-spacing": "0",
+        "border-bottom": `3px solid ${profile.accent}`,
+        padding: "0 0 12px",
+      },
+      2: {
+        margin: "30px 0 16px",
+        color: profile.accent,
+        "font-size": "20px",
+        "line-height": "1.48",
+        "font-weight": "800",
+        "letter-spacing": "0",
+        "border-left": `5px solid ${profile.accent}`,
+        padding: "0 0 0 10px",
+      },
+      3: {
+        margin: "24px 0 12px",
+        color: profile.ink,
+        "font-size": "17px",
+        "line-height": "1.55",
+        "font-weight": "800",
+        "letter-spacing": "0",
+      },
+    };
+    return `<${tag} style="${styleText(smartDefaults[Math.min(level, 3)])}">${content}</${tag}>`;
+  }
+
   const defaults = {
     1: { margin: "0 0 22px", "font-size": "28px", "line-height": "1.35", "font-weight": "800" },
     2: { margin: "28px 0 16px", "font-size": "22px", "line-height": "1.45", "font-weight": "800" },
@@ -309,6 +466,19 @@ function headingHtml(tag, content, sourceStyle, profile) {
 }
 
 function quoteHtml(content, sourceStyle, profile) {
+  if (profile.mode === "smart") {
+    return `<blockquote style="${styleText({
+      margin: "20px 0",
+      padding: "14px 16px",
+      color: "#394150",
+      "background-color": "#f6f8fb",
+      "border-left": `4px solid ${profile.accent}`,
+      "border-radius": "0 6px 6px 0",
+      "font-size": "15px",
+      "line-height": "1.85",
+    })}">${content}</blockquote>`;
+  }
+
   return `<blockquote style="${styleText(
     mergeStyles(
       {
@@ -329,21 +499,21 @@ function listHtml(node, tag, sourceStyle, profile) {
     .filter((child) => child.tagName?.toLowerCase() === "li")
     .map((child) => transformNode(child, profile))
     .join("");
-  return `<${tag} style="${styleText(
-    mergeStyles(
-      {
-        margin: "14px 0 18px",
-        padding: "0 0 0 24px",
-        color: profile.ink,
-        "line-height": "1.9",
-        "list-style-type": tag === "ul" ? "disc" : "decimal",
-      },
-      sourceStyle,
-    ),
-  )}">${items}</${tag}>`;
+  const defaults = {
+    margin: profile.mode === "smart" ? "14px 0 20px" : "14px 0 18px",
+    padding: "0 0 0 24px",
+    color: profile.ink,
+    "font-size": profile.mode === "smart" ? "16px" : undefined,
+    "line-height": profile.mode === "smart" ? "1.9" : "1.9",
+    "list-style-type": tag === "ul" ? "disc" : "decimal",
+  };
+  return `<${tag} style="${styleText(profile.mode === "smart" ? defaults : mergeStyles(defaults, sourceStyle))}">${items}</${tag}>`;
 }
 
 function listItemHtml(content, sourceStyle, profile) {
+  if (profile.mode === "smart") {
+    return `<li style="${styleText({ margin: "7px 0", padding: "0 0 0 2px", color: profile.ink })}">${content}</li>`;
+  }
   return `<li style="${styleText(mergeStyles({ margin: "6px 0", padding: "0 0 0 2px", color: profile.ink }, sourceStyle))}">${content}</li>`;
 }
 
@@ -499,7 +669,14 @@ function analyzeDocument(root) {
 
   const sortedColors = [...colorCounts.entries()].sort((a, b) => b[1] - a[1]).map(([color]) => color);
   const firstAccent = sortedColors.find((color) => !isNeutralColor(color));
-  profile.accent = firstAccent || profile.accent;
+  const headingAccent =
+    [...root.querySelectorAll("h2,h3,h4,h5,h6")]
+      .map((node) => styleFromNode(node).color)
+      .find((color) => color && !isNeutralColor(color)) ||
+    [...root.querySelectorAll("h1")]
+      .map((node) => styleFromNode(node).color)
+      .find((color) => color && !isNeutralColor(color));
+  profile.accent = headingAccent || firstAccent || profile.accent;
   profile.soft = [...backgroundCounts.keys()].find((color) => color !== profile.paper) || profile.soft;
 
   return {
@@ -511,6 +688,11 @@ function analyzeDocument(root) {
     images: root.querySelectorAll("img").length,
     tables: root.querySelectorAll("table").length,
     links: root.querySelectorAll("a[href]").length,
+    mode: currentFormatMode,
+    keyMarks: 0,
+    autoHeadings: 0,
+    seenContent: false,
+    titleAssigned: !!root.querySelector("h1"),
   };
 }
 
@@ -532,9 +714,9 @@ function renderReport(profile) {
 
   formatReport.innerHTML = `
     <div class="report-section">
-      <span class="report-label">样式来源</span>
-      <strong>跟随当前飞书文档</strong>
-      <p>已识别 ${profile.styledNodeCount} 个带样式节点。</p>
+      <span class="report-label">排版模式</span>
+      <strong>${profile.mode === "smart" ? "公众号一键排版" : "跟随当前飞书文档"}</strong>
+      <p>${profile.mode === "smart" ? "自动优化标题、正文行距和重点句。" : `已识别 ${profile.styledNodeCount} 个带样式节点。`}</p>
     </div>
     <div class="report-section">
       <span class="report-label">颜色</span>
@@ -549,6 +731,8 @@ function renderReport(profile) {
       <div class="chip-grid">${blockItems}</div>
     </div>
     <div class="report-section compact-metrics">
+      <span>标题 ${profile.autoHeadings}</span>
+      <span>重点 ${profile.keyMarks}</span>
       <span>图片 ${profile.images}</span>
       <span>表格 ${profile.tables}</span>
       <span>链接 ${profile.links}</span>
@@ -712,5 +896,16 @@ document.querySelector("#loadSample").addEventListener("click", () => {
 document.querySelector("#copyRich").addEventListener("click", copyRich);
 document.querySelector("#copyRichSecondary").addEventListener("click", copyRich);
 document.querySelector("#copyHtml").addEventListener("click", copyHtmlSource);
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentFormatMode = button.dataset.formatMode;
+    modeButtons.forEach((item) => {
+      const active = item.dataset.formatMode === currentFormatMode;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-selected", String(active));
+    });
+    convert();
+  });
+});
 
 renderEmpty();

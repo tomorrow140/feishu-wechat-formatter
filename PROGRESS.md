@@ -28,11 +28,19 @@
 - 已启用 GitHub Pages，发布地址：https://tomorrow140.github.io/feishu-wechat-formatter/
 - 已验证公开网页返回 HTTP 200，且页面包含工具标题、介绍文案和粘贴工作区。
 - 已按用户要求去掉公众号输出内容的整篇左右缩进，外层输出从 `padding: 28px 22px 34px` 改为 `padding: 28px 0 34px`。
+- 已新增“公众号排版 / 跟随原文”模式切换，默认使用“公众号排版”。
+- 已实现公众号一键排版：自动优化标题、正文行距、段落间距、引用块、列表和重点短语。
+- 已实现标题识别：短标题、编号标题和飞书标题样式会进入公众号标题样式。
+- 已实现重点识别：飞书加粗、标色、高亮会转成更醒目的重点短语或重点句。
+- 已更新顶部介绍和 README，让说明匹配一键排版能力。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
 - feishu-wechat-formatter/TODO.md
 - feishu-wechat-formatter/app.js
+- feishu-wechat-formatter/index.html
+- feishu-wechat-formatter/styles.css
+- feishu-wechat-formatter/README.md
 
 已做出的关键决策
 - 不接入飞书 API，首版走剪贴板粘贴，降低配置门槛。
@@ -41,6 +49,7 @@
 - 对外部粘贴内容移除脚本、事件属性、class/id/data 属性，保留安全白名单内的内联样式。
 - 工具形态为 HTML 静态网页工具，不是飞书插件；后续如需更深集成，可升级为飞书开放平台应用或 Chrome 插件。
 - 颜色处理策略：节点自己有 `color` 才保留；正文默认色固定为 `#1f2329`，不再从文档颜色列表自动推断。
+- 排版模式策略：默认“公众号排版”提升可读性；“跟随原文”作为保留原格式的备用模式。
 
 尚未完成事项
 - 未在真实微信公众号后台做最终粘贴验证。
@@ -49,10 +58,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 把公开网页 URL 发给别人测试真实飞书文档粘贴流程：https://tomorrow140.github.io/feishu-wechat-formatter/
+- 提交并推送一键排版功能，等待 GitHub Pages 自动更新后验证线上页面。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有去掉输出左右缩进的改动待提交。
+- `feishu-wechat-formatter/` 内当前有一键排版功能改动待提交。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -68,3 +77,5 @@
 - GitHub Pages 私有仓库启用失败信息：`Your current plan does not support GitHub Pages for this repository.`
 - 已验证公开网页：`curl -I https://tomorrow140.github.io/feishu-wechat-formatter/` 返回 `HTTP/2 200`。
 - 已验证本地 `app.js` 中输出外层样式为 `padding: "28px 0 34px"`。
+- 已验证本地示例：默认选中“公众号排版”，编号短句被提升为二级标题，高亮文本转为黄色重点，报告显示标题和重点计数。
+- 已验证“跟随原文”模式仍可切换。
