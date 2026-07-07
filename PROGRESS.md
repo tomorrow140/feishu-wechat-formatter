@@ -68,6 +68,8 @@
 - 已提交并推送子元素标题样式优先级增强，GitHub Pages 已构建完成并通过线上验证。
 - 已新增 `tests/format-preservation.test.js` 格式保真回归验证脚本，会用 Chrome 模拟飞书富文本粘贴，并检查字体、字号、颜色、分段、列表和表格样式是否输出为公众号可用的内联样式。
 - 已更新 `README.md`，补充格式保真验证命令。
+- 已移除页面 UI 中使用 viewport 计算的 `font-size: clamp(...)`，改为固定字号加移动端媒体查询，让工具页面更稳定、简洁。
+- 已增强格式保真回归验证：检查实现逻辑默认折叠，且 390px 手机宽度下页面无横向溢出。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -170,3 +172,4 @@
 - 已验证线上 `app.js` 包含 `dominantChildTextStyle`、`strong` / `b` 加粗处理，且默认 `currentFormatMode = "source"`。
 - 已验证静态检查：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证格式保真回归：`node tests/format-preservation.test.js` 通过，覆盖字体、字号、颜色、分段、列表和表格内联样式输出。
+- 已验证页面简洁性回归：`node tests/format-preservation.test.js` 通过，额外检查默认折叠说明区和 390px 手机宽度无横向溢出。

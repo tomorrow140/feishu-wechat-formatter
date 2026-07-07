@@ -32,6 +32,12 @@ if (!chromePath) {
 
 const runnerPath = path.join(os.tmpdir(), `feishu-wechat-format-test-${Date.now()}.html`);
 const appUrl = `file://${path.join(rootDir, "index.html")}`;
+const cssText = fs.readFileSync(path.join(rootDir, "styles.css"), "utf8");
+
+if (/font-size\s*:\s*clamp\(/i.test(cssText)) {
+  console.error("页面 UI 不应使用 viewport 参与计算的 clamp 字号，请改为固定字号加媒体查询。");
+  process.exit(1);
+}
 
 const runnerHtml = `<!doctype html>
 <html lang="zh-CN">
@@ -77,6 +83,7 @@ const runnerHtml = `<!doctype html>
             const output = doc.querySelector("#preview").innerHTML;
             const report = doc.querySelector("#formatReport").innerText;
             const sourceModeActive = doc.querySelector('[data-format-mode="source"]').classList.contains("active");
+            const frameElement = document.querySelector("#app");
 
             assert(sourceModeActive, "默认模式应该是保持原格式");
             assert(output.includes("岗位和角色在融合"), "应该保留正文内容", output);
@@ -87,6 +94,15 @@ const runnerHtml = `<!doctype html>
             assert(output.includes("list-style-type:square") && output.includes("font-size:15px"), "列表样式和列表项字号应保留", output);
             assert(includesAll(output, ["color:#245bdb", "font-size:14px", "background-color:#f2f5ff"]), "表格单元格颜色、字号和背景应保留", output);
             assert(/已识别\\s+\\d+\\s+个带样式节点/.test(report), "格式识别报告应该显示样式节点数量", report);
+            assert(!doc.querySelector(".intro-details").open, "实现逻辑详情应默认折叠，保持页面简洁");
+
+            frameElement.style.width = "390px";
+            doc.body.offsetWidth;
+            assert(
+              doc.documentElement.scrollWidth <= doc.documentElement.clientWidth + 1,
+              "390px 手机宽度不应出现横向溢出",
+              "scrollWidth=" + doc.documentElement.scrollWidth + ", clientWidth=" + doc.documentElement.clientWidth,
+            );
 
             document.body.dataset.testResult = "pass";
             document.body.textContent = JSON.stringify({ ok: true, report });
@@ -122,7 +138,7 @@ try {
     process.exit(result.status || 1);
   }
 
-  console.log("格式保真回归验证通过：字体、字号、颜色、分段、列表、表格样式均输出为公众号可用的内联样式。");
+  console.log("格式保真回归验证通过：字体、字号、颜色、分段、列表、表格样式均输出为公众号可用的内联样式，页面默认简洁且移动端无横向溢出。");
 } finally {
   fs.rmSync(runnerPath, { force: true });
 }

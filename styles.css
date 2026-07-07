@@ -76,7 +76,7 @@ button {
 .intro-copy h2 {
   margin: 0;
   font-family: Georgia, "Songti SC", serif;
-  font-size: clamp(18px, 2.1vw, 26px);
+  font-size: 24px;
   line-height: 1.22;
 }
 
@@ -181,7 +181,7 @@ h2 {
 
 h1 {
   font-family: Georgia, "Songti SC", serif;
-  font-size: clamp(28px, 4vw, 46px);
+  font-size: 40px;
   line-height: 1.05;
 }
 
@@ -488,6 +488,15 @@ h2 {
   .intro-band {
     grid-template-columns: 1fr;
     padding: 18px;
+  }
+
+  .intro-copy h2 {
+    font-size: 20px;
+  }
+
+  h1 {
+    font-size: 30px;
+    line-height: 1.12;
   }
 
   .intro-points,
