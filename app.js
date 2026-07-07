@@ -31,6 +31,7 @@ const allowedStyleProperties = new Set([
   "box-sizing",
   "color",
   "display",
+  "font",
   "font-family",
   "font-size",
   "font-style",
@@ -53,9 +54,11 @@ const allowedStyleProperties = new Set([
   "padding-top",
   "text-align",
   "text-decoration",
+  "text-indent",
   "vertical-align",
   "white-space",
   "width",
+  "list-style-type",
 ]);
 
 const blockTags = new Set([
@@ -121,6 +124,7 @@ function isEmptyHtml(html) {
 }
 
 function cleanSource(root) {
+  inlineEmbeddedStyles(root);
   root.querySelectorAll("script,style,meta,link,iframe,object,embed,form,input,button,textarea,select").forEach((node) => node.remove());
   root.querySelectorAll("*").forEach((node) => {
     [...node.attributes].forEach((attr) => {
@@ -130,6 +134,54 @@ function cleanSource(root) {
       }
     });
   });
+}
+
+function inlineEmbeddedStyles(root) {
+  const styleTextContent = [...root.querySelectorAll("style")]
+    .map((node) => node.textContent || "")
+    .join("\n")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  if (!styleTextContent.trim()) return;
+
+  const originalInlineStyles = new WeakMap();
+  root.querySelectorAll("*").forEach((node) => {
+    originalInlineStyles.set(node, styleFromNode(node));
+  });
+
+  const rulePattern = /([^{}@]+)\{([^{}]+)\}/g;
+  let match;
+  while ((match = rulePattern.exec(styleTextContent))) {
+    const ruleStyle = parseStyle(match[2]);
+    if (!Object.keys(ruleStyle).length) continue;
+
+    match[1]
+      .split(",")
+      .map((selector) => selector.trim())
+      .filter(isSupportedCssSelector)
+      .forEach((selector) => {
+        let nodes = [];
+        try {
+          nodes = [...root.querySelectorAll(selector)];
+        } catch (error) {
+          nodes = [];
+        }
+
+        nodes.forEach((node) => {
+          const currentStyle = styleFromNode(node);
+          const originalStyle = originalInlineStyles.get(node) || {};
+          node.setAttribute("style", styleText(mergeStyles(currentStyle, ruleStyle, originalStyle)));
+        });
+      });
+  }
+}
+
+function isSupportedCssSelector(selector) {
+  return (
+    selector.length > 0 &&
+    selector.length <= 160 &&
+    !/[{}<:"'`~+]|::?/.test(selector) &&
+    /^[#.a-zA-Z0-9_\-\s>]+$/.test(selector)
+  );
 }
 
 function safeCssValue(value) {
@@ -167,6 +219,7 @@ function mergeStyles(...styles) {
 
 const inheritedTextProperties = [
   "color",
+  "font",
   "font-family",
   "font-size",
   "font-style",
@@ -175,6 +228,7 @@ const inheritedTextProperties = [
   "line-height",
   "text-align",
   "text-decoration",
+  "text-indent",
   "white-space",
 ];
 
