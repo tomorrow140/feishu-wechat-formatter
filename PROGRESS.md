@@ -71,6 +71,7 @@
 - 已移除页面 UI 中使用 viewport 计算的 `font-size: clamp(...)`，改为固定字号加移动端媒体查询，让工具页面更稳定、简洁。
 - 已增强格式保真回归验证：检查实现逻辑默认折叠，且 390px 手机宽度下页面无横向溢出。
 - 已增强格式保真回归验证：mock 浏览器剪贴板并调用“复制到公众号”链路，确认会同时写入 `text/html` 富文本和 `text/plain` 纯文本，且复制出的 HTML 保留关键内联样式。
+- 已增强格式保真回归验证：补充引用块、链接、下划线、删除线、行内代码、居中对齐和字体族等飞书常见格式。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -177,3 +178,4 @@
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上 `styles.css` 已使用固定字号和移动端媒体查询，不再包含 `font-size: clamp(...)`。
 - 已验证富文本复制链路：`node tests/format-preservation.test.js` 通过，确认“复制到公众号”写入 `text/html` 和 `text/plain`，且 HTML 中保留字号和缩进等关键内联样式。
+- 已验证扩展格式保真：`node tests/format-preservation.test.js` 通过，覆盖引用块、链接、下划线、删除线、行内代码、居中对齐和字体族。
