@@ -125,6 +125,7 @@ function isEmptyHtml(html) {
 
 function cleanSource(root) {
   inlineEmbeddedStyles(root);
+  normalizeImageAttributes(root);
   root.querySelectorAll("script,style,meta,link,iframe,object,embed,form,input,button,textarea,select").forEach((node) => node.remove());
   root.querySelectorAll("*").forEach((node) => {
     [...node.attributes].forEach((attr) => {
@@ -134,6 +135,18 @@ function cleanSource(root) {
       }
     });
   });
+}
+
+function normalizeImageAttributes(root) {
+  root.querySelectorAll("img").forEach((node) => {
+    const src = imageSource(node);
+    if (src) node.setAttribute("src", src);
+  });
+}
+
+function imageSource(node) {
+  const candidates = ["src", "data-src", "data-original", "data-lazy-src", "data-image-src", "data-url"];
+  return candidates.map((name) => node.getAttribute(name)).find((value) => value && !/^javascript:/i.test(value.trim())) || "";
 }
 
 function inlineEmbeddedStyles(root) {
@@ -711,11 +724,28 @@ function preHtml(node, sourceStyle, profile) {
 }
 
 function imageHtml(node, sourceStyle) {
-  const src = node.getAttribute("src") || "";
+  const src = imageSource(node);
   const alt = node.getAttribute("alt") || "";
   if (!src || /^javascript:/i.test(src)) return "";
-  const imageStyle = mergeStyles({ display: "block", width: "100%", "max-width": "100%", height: "auto" }, sourceStyle);
+  const imageStyle = mergeStyles({ display: "block", width: "100%", "max-width": "100%", height: "auto" }, imageAttributeStyle(node), sourceStyle);
   return `<p style="${styleText({ margin: "22px 0", "text-align": "center" })}"><img src="${esc(src)}" alt="${esc(alt)}" style="${styleText(imageStyle)}"></p>`;
+}
+
+function imageAttributeStyle(node) {
+  const style = {};
+  const width = cssDimensionFromAttribute(node.getAttribute("width"));
+  const height = cssDimensionFromAttribute(node.getAttribute("height"));
+  if (width) style.width = width;
+  if (height) style.height = height;
+  return style;
+}
+
+function cssDimensionFromAttribute(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+  if (/^\d+(?:\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
+  if (/^\d+(?:\.\d+)?(?:px|%)$/i.test(trimmed)) return trimmed;
+  return "";
 }
 
 function tableHtml(table, sourceStyle, profile, inheritedStyle = {}) {
