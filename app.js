@@ -240,8 +240,38 @@ function parseStyle(style = "") {
     if (!value) return;
     if (property === "background") property = "background-color";
     if (!allowedStyleProperties.has(property)) return;
+    if (property === "font") {
+      Object.assign(result, parseFontShorthand(value));
+      return;
+    }
     result[property] = value;
   });
+  return result;
+}
+
+function parseFontShorthand(value) {
+  const result = {};
+  const sizeMatch = value.match(/(?:^|\s)(\d+(?:\.\d+)?(?:px|pt|em|rem|%))(?:\s*\/\s*([^\s]+))?/i);
+  if (!sizeMatch) return result;
+
+  const beforeSize = value.slice(0, sizeMatch.index).trim();
+  const afterSize = value.slice((sizeMatch.index || 0) + sizeMatch[0].length).trim();
+  const beforeParts = beforeSize.split(/\s+/).filter(Boolean);
+
+  beforeParts.forEach((part) => {
+    const normalized = part.toLowerCase();
+    if (["italic", "oblique", "normal"].includes(normalized) && !result["font-style"]) {
+      result["font-style"] = normalized;
+      return;
+    }
+    if ((["bold", "bolder", "lighter"].includes(normalized) || /^[1-9]00$/.test(normalized)) && !result["font-weight"]) {
+      result["font-weight"] = normalized;
+    }
+  });
+
+  result["font-size"] = sizeMatch[1];
+  if (sizeMatch[2]) result["line-height"] = sizeMatch[2];
+  if (afterSize) result["font-family"] = afterSize;
   return result;
 }
 
