@@ -45,6 +45,7 @@
 - 已增强飞书粘贴格式保留：如果粘贴内容包含安全的 `<style>` / class 样式，会先把允许的 CSS 属性转成标签内联样式，再清理 `<style>`、`class`、`id` 等不适合公众号的标记。
 - 已补充保留 `font`、`text-indent`、`list-style-type` 等样式属性，用于更接近原文的字体、缩进和列表格式。
 - 已更新脚本版本参数为 `app.js?v=20260707-embedded-styles`，避免线上旧脚本缓存。
+- 已提交并推送 `<style>` / class 样式内联化增强，GitHub Pages 已构建完成并通过线上验证。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -72,10 +73,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送 `<style>` / class 样式内联化增强，等待 GitHub Pages 自动更新后验证线上页面引用新版脚本。
+- 用真实飞书文章和微信公众号后台做最终粘贴验收；重点看图片、复杂表格、特殊字体和飞书临时图片地址是否仍需要补充兼容。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有 `<style>` / class 样式内联化增强待提交。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -107,3 +108,6 @@
 - 已验证线上 `app.js` 包含 `inheritedTextProperties`、`textInheritedStyle` 和“补齐继承样式”文案。
 - 已验证语法和空白检查：`node --check app.js && git diff --check` 通过。
 - 已用 Chrome 无头模式打开本地 `index.html` 做真实 DOM 验证：安全 `<style>` / class 样式会转成内联样式，输出不保留 `<style>` / `class`，且原始内联样式优先级高于 class 样式。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页包含“保持原格式”，并引用 `app.js?v=20260707-embedded-styles`。
+- 已验证线上 `app.js` 包含 `inlineEmbeddedStyles`、`isSupportedCssSelector`、`text-indent` 和 `list-style-type`。
