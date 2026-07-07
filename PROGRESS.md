@@ -184,3 +184,5 @@
 - 已验证扩展格式保真：`node tests/format-preservation.test.js` 通过，覆盖引用块、链接、下划线、删除线、行内代码、居中对齐和字体族。
 - 已验证图片保真：`node tests/format-preservation.test.js` 通过，覆盖图片 `src`、`alt`、尺寸、圆角样式和报告图片计数。
 - 已验证图片懒加载兼容：`node tests/format-preservation.test.js` 通过，覆盖 `data-src` 转 `src`，以及 `width` / `height` 属性转内联样式。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260707-image-src-attrs`。
