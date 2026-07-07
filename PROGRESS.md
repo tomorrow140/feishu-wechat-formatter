@@ -173,3 +173,5 @@
 - 已验证静态检查：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证格式保真回归：`node tests/format-preservation.test.js` 通过，覆盖字体、字号、颜色、分段、列表和表格内联样式输出。
 - 已验证页面简洁性回归：`node tests/format-preservation.test.js` 通过，额外检查默认折叠说明区和 390px 手机宽度无横向溢出。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上 `styles.css` 已使用固定字号和移动端媒体查询，不再包含 `font-size: clamp(...)`。
