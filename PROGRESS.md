@@ -61,6 +61,7 @@
 - 已修复“公众号排版”模式漏识别飞书普通 `div` 标题的问题：普通 `div` 中的编号短句也会进入智能标题识别。
 - 已增强标题识别：当飞书把蓝色、加粗、字号放在子 `span` / `strong` 上时，标题判断会读取子元素的主要文字样式。
 - 已更新脚本版本参数为 `app.js?v=20260707-div-heading-detect`，避免线上旧脚本缓存。
+- 已提交并推送 `div` 标题识别修复，GitHub Pages 已构建完成并通过线上验证。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -91,10 +92,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送 `div` 标题识别修复，等待 GitHub Pages 自动更新后验证线上页面引用新版脚本。
+- 用用户截图中的真实飞书文章重新粘贴验证“公众号排版”模式，确认圈红编号行进入标题计数并显示为标题。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有 `div` 标题识别修复待提交。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -151,3 +152,6 @@
 - 已验证线上首页引用 `app.js?v=20260707-font-shorthand`。
 - 已验证语法和空白检查：`node --check app.js && git diff --check` 通过。
 - 已用 Chrome 无头模式验证截图同类结构：在“公众号排版”模式中，`div > span` 形式的蓝色编号短句会生成 `h2`，报告显示 `标题 1`，后续正文仍保持段落。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260707-div-heading-detect`。
+- 已验证线上 `app.js` 包含 `dominantChildTextStyle`，且普通 `div` 会调用 `smartPromotedHeading`。
