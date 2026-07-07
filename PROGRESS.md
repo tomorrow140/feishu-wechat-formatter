@@ -48,6 +48,7 @@
 - 已提交并推送 `<style>` / class 样式内联化增强，GitHub Pages 已构建完成并通过线上验证。
 - 已将工具默认模式从“公众号排版”改为“保持原格式”，让首次粘贴就优先保留飞书原始字体、字号、颜色、行距和分段；“公众号排版”保留为可选美化模式。
 - 已更新脚本版本参数为 `app.js?v=20260707-default-source`，避免线上旧脚本缓存。
+- 已提交并推送默认“保持原格式”调整，GitHub Pages 已构建完成并通过线上验证。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -75,10 +76,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送默认“保持原格式”调整，等待 GitHub Pages 自动更新后验证线上页面引用新版脚本。
+- 用真实飞书文章和微信公众号后台做最终粘贴验收；重点看图片、复杂表格、特殊字体和飞书临时图片地址是否仍需要补充兼容。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有默认“保持原格式”调整待提交。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -115,3 +116,6 @@
 - 已验证线上 `app.js` 包含 `inlineEmbeddedStyles`、`isSupportedCssSelector`、`text-indent` 和 `list-style-type`。
 - 已验证语法和空白检查：`node --check app.js && git diff --check` 通过。
 - 已用 Chrome 无头模式打开本地 `index.html` 做真实 DOM 验证：页面初始选中“保持原格式”，默认转换保留字号/颜色/行距，点击“公众号排版”仍可切换。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页默认选中“保持原格式”，并引用 `app.js?v=20260707-default-source`。
+- 已验证线上 `app.js` 默认 `currentFormatMode = "source"`。
