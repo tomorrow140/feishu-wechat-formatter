@@ -413,6 +413,11 @@ function transformNode(node, profile, inline = false, inheritedStyle = {}) {
       const content = blockChildren(node, profile, childInheritedStyle);
       return Object.keys(sourceStyle).length ? `<section style="${styleText(blockContainerStyle(sourceStyle, profile))}">${content}</section>` : content;
     }
+    if (profile.mode === "smart") {
+      const promoted = smartPromotedHeading(node, children, ownStyle, profile);
+      if (promoted) return promoted;
+    }
+    profile.seenContent = true;
     return paragraphHtml(children, sourceStyle, profile);
   }
 
@@ -479,25 +484,41 @@ function smartSpanHtml(children, sourceStyle, profile) {
 function smartPromotedHeading(node, children, sourceStyle, profile) {
   const text = normalizeText(node.textContent).trim();
   if (!text) return "";
+  const headingStyle = mergeStyles(sourceStyle, dominantChildTextStyle(node, sourceStyle));
   const shortEnough = text.length <= 58;
   const numbered = /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text);
-  const styledHeading = fontWeightValue(sourceStyle) >= 600 || numericPx(sourceStyle["font-size"]) >= 19;
+  const styledHeading = fontWeightValue(headingStyle) >= 600 || numericPx(headingStyle["font-size"]) >= 19;
   const firstTitle = !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
 
-  if (!profile.titleAssigned && (firstTitle || (shortEnough && numericPx(sourceStyle["font-size"]) >= 24))) {
+  if (!profile.titleAssigned && (firstTitle || (shortEnough && numericPx(headingStyle["font-size"]) >= 24))) {
     profile.titleAssigned = true;
     profile.seenContent = true;
     profile.autoHeadings += 1;
-    return headingHtml("h1", children, sourceStyle, profile);
+    return headingHtml("h1", children, headingStyle, profile);
   }
 
   if (shortEnough && (numbered || styledHeading)) {
     profile.seenContent = true;
     profile.autoHeadings += 1;
-    return headingHtml("h2", children, sourceStyle, profile);
+    return headingHtml("h2", children, headingStyle, profile);
   }
 
   return "";
+}
+
+function dominantChildTextStyle(node, fallbackStyle = {}) {
+  const candidates = [...node.querySelectorAll("span,strong,b")]
+    .map((child) => styleFromNode(child))
+    .filter((style) => Object.keys(style).length);
+  const dominant = {};
+
+  candidates.forEach((style) => {
+    if (!dominant.color && style.color) dominant.color = style.color;
+    if (!dominant["font-size"] && style["font-size"]) dominant["font-size"] = style["font-size"];
+    if (fontWeightValue(style) > fontWeightValue(dominant)) dominant["font-weight"] = style["font-weight"];
+  });
+
+  return mergeStyles(dominant, fallbackStyle);
 }
 
 function containsBlockElement(node) {
