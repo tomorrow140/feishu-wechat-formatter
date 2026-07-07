@@ -508,7 +508,13 @@ function smartPromotedHeading(node, children, sourceStyle, profile) {
 
 function dominantChildTextStyle(node, fallbackStyle = {}) {
   const candidates = [...node.querySelectorAll("span,strong,b")]
-    .map((child) => styleFromNode(child))
+    .map((child) => {
+      const style = styleFromNode(child);
+      if ((tagName(child) === "strong" || tagName(child) === "b") && !style["font-weight"]) {
+        style["font-weight"] = "700";
+      }
+      return style;
+    })
     .filter((style) => Object.keys(style).length);
   const dominant = {};
 
@@ -518,7 +524,7 @@ function dominantChildTextStyle(node, fallbackStyle = {}) {
     if (fontWeightValue(style) > fontWeightValue(dominant)) dominant["font-weight"] = style["font-weight"];
   });
 
-  return mergeStyles(dominant, fallbackStyle);
+  return mergeStyles(fallbackStyle, dominant);
 }
 
 function containsBlockElement(node) {
