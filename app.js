@@ -85,7 +85,7 @@ const blockTags = new Set([
 ]);
 
 let lastOutputHtml = "";
-let currentFormatMode = "smart";
+let currentFormatMode = "source";
 
 const sampleHtml = `
   <h1 style="font-size: 30px; line-height: 1.35; color: #172b4d; font-weight: 800;">飞书原文格式自适应转换</h1>
