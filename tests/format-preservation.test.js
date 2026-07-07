@@ -73,10 +73,26 @@ const runnerHtml = `<!doctype html>
       }
 
       document.querySelector("#app").addEventListener("load", () => {
-        setTimeout(() => {
+        setTimeout(async () => {
           try {
             const frame = document.querySelector("#app").contentWindow;
             const doc = frame.document;
+            const clipboardWrites = [];
+            frame.ClipboardItem = class MockClipboardItem {
+              constructor(items) {
+                this.items = items;
+                this.types = Object.keys(items);
+              }
+            };
+            Object.defineProperty(frame.navigator, "clipboard", {
+              configurable: true,
+              value: {
+                write: async (items) => {
+                  clipboardWrites.push(items);
+                },
+              },
+            });
+
             doc.querySelector("#rawEditor").innerHTML = feishuLikeHtml;
             frame.convert();
 
@@ -103,6 +119,17 @@ const runnerHtml = `<!doctype html>
               "390px 手机宽度不应出现横向溢出",
               "scrollWidth=" + doc.documentElement.scrollWidth + ", clientWidth=" + doc.documentElement.clientWidth,
             );
+
+            await frame.copyRich();
+            assert(clipboardWrites.length === 1, "复制富文本时应写入一次剪贴板");
+            const clipboardItem = clipboardWrites[0][0];
+            assert(clipboardItem.types.includes("text/html"), "剪贴板应包含 text/html 富文本");
+            assert(clipboardItem.types.includes("text/plain"), "剪贴板应包含 text/plain 纯文本");
+            const copiedHtml = await clipboardItem.items["text/html"].text();
+            const copiedPlain = await clipboardItem.items["text/plain"].text();
+            assert(copiedHtml.includes("font-size:26px") && copiedHtml.includes("text-indent:2em"), "复制到公众号的 HTML 应保留关键内联样式", copiedHtml);
+            assert(copiedPlain.includes("岗位和角色在融合") && copiedPlain.includes("正文段落需要保留"), "复制到公众号的纯文本应保留正文内容", copiedPlain);
+            assert(doc.querySelector("#statusText").innerText.includes("已复制富文本"), "复制成功后应提示已复制富文本");
 
             document.body.dataset.testResult = "pass";
             document.body.textContent = JSON.stringify({ ok: true, report });
@@ -138,7 +165,7 @@ try {
     process.exit(result.status || 1);
   }
 
-  console.log("格式保真回归验证通过：字体、字号、颜色、分段、列表、表格样式均输出为公众号可用的内联样式，页面默认简洁且移动端无横向溢出。");
+  console.log("格式保真回归验证通过：字体、字号、颜色、分段、列表、表格样式均输出为公众号可用的内联样式，页面默认简洁、移动端无横向溢出，富文本复制写入 text/html 和 text/plain。");
 } finally {
   fs.rmSync(runnerPath, { force: true });
 }
