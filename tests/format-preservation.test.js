@@ -61,6 +61,7 @@ const runnerHtml = `<!doctype html>
           <p>这一句里有 <span class="accent">红色重点</span> 和 <strong>加粗文字</strong>。</p>
           <blockquote class="quote">引用块需要保留左边框、背景和文字颜色。</blockquote>
           <p class="center"><u>下划线文字</u>、<s>删除线文字</s>、<code style="color: #111827;">inline code</code>、<a href="https://example.com/demo">安全链接</a></p>
+          <img src="https://example.com/feishu-image.png" alt="飞书图片" style="width: 320px; border-radius: 6px;">
           <ul style="list-style-type: square;"><li style="font-size: 15px;">列表项保留字号和项目符号</li></ul>
           <table><tr><td>表格单元格保留颜色和背景</td></tr></table>
         </div>
@@ -116,9 +117,12 @@ const runnerHtml = `<!doctype html>
             assert(includesAll(output, ["text-decoration:underline", "text-decoration:line-through"]), "下划线和删除线应保留", output);
             assert(output.includes("<code") && output.includes("inline code") && output.includes("color:#111827"), "行内代码和代码颜色应保留", output);
             assert(output.includes('href="https://example.com/demo"') && output.includes("安全链接"), "安全链接 href 和文本应保留", output);
+            assert(output.includes('src="https://example.com/feishu-image.png"') && output.includes('alt="飞书图片"'), "图片 src 和 alt 应保留", output);
+            assert(output.includes("width:320px") && output.includes("border-radius:6px"), "图片尺寸和圆角样式应保留", output);
             assert(output.includes("list-style-type:square") && output.includes("font-size:15px"), "列表样式和列表项字号应保留", output);
             assert(includesAll(output, ["color:#245bdb", "font-size:14px", "background-color:#f2f5ff"]), "表格单元格颜色、字号和背景应保留", output);
             assert(/已识别\\s+\\d+\\s+个带样式节点/.test(report), "格式识别报告应该显示样式节点数量", report);
+            assert(report.includes("图片 1"), "格式识别报告应该统计图片", report);
             assert(report.includes("链接 1"), "格式识别报告应该统计安全链接", report);
             assert(!doc.querySelector(".intro-details").open, "实现逻辑详情应默认折叠，保持页面简洁");
 
@@ -139,6 +143,7 @@ const runnerHtml = `<!doctype html>
             const copiedPlain = await clipboardItem.items["text/plain"].text();
             assert(copiedHtml.includes("font-size:26px") && copiedHtml.includes("text-indent:2em"), "复制到公众号的 HTML 应保留关键内联样式", copiedHtml);
             assert(copiedHtml.includes("background-color:#f6f8fb") && copiedHtml.includes('href="https://example.com/demo"'), "复制到公众号的 HTML 应保留引用块和链接", copiedHtml);
+            assert(copiedHtml.includes('src="https://example.com/feishu-image.png"') && copiedHtml.includes("width:320px"), "复制到公众号的 HTML 应保留图片和图片样式", copiedHtml);
             assert(copiedPlain.includes("岗位和角色在融合") && copiedPlain.includes("正文段落需要保留"), "复制到公众号的纯文本应保留正文内容", copiedPlain);
             assert(copiedPlain.includes("引用块需要保留") && copiedPlain.includes("安全链接"), "复制到公众号的纯文本应保留引用和链接文本", copiedPlain);
             assert(doc.querySelector("#statusText").innerText.includes("已复制富文本"), "复制成功后应提示已复制富文本");
