@@ -65,6 +65,7 @@
 - 已增强子元素标题样式优先级：父级普通/灰色样式不会覆盖子 `span` 的蓝色、字号、加粗信息。
 - 已增强纯 `strong` / `b` 子元素标题识别：即使没有显式 `font-weight`，也会按加粗参与智能标题判断。
 - 已更新脚本版本参数为 `app.js?v=20260707-child-heading-priority`，避免线上旧脚本缓存。
+- 已提交并推送子元素标题样式优先级增强，GitHub Pages 已构建完成并通过线上验证。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -96,10 +97,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送子元素标题样式优先级增强，等待 GitHub Pages 自动更新后验证线上页面引用新版脚本。
+- 用用户截图中的真实飞书文章重新粘贴验证“公众号排版”模式，确认圈红编号行进入标题计数并显示为标题。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有子元素标题样式优先级增强待提交。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -161,3 +162,6 @@
 - 已验证线上 `app.js` 包含 `dominantChildTextStyle`，且普通 `div` 会调用 `smartPromotedHeading`。
 - 已验证语法和空白检查：`node --check app.js && git diff --check` 通过。
 - 已用 Chrome 无头模式验证：父级灰色 `div` 中的蓝色加粗 `span` 编号行会识别为标题，纯 `strong` 编号行也会识别为标题，报告显示 `标题 2`。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260707-child-heading-priority`。
+- 已验证线上 `app.js` 包含 `dominantChildTextStyle`、`strong` / `b` 加粗处理，且默认 `currentFormatMode = "source"`。
