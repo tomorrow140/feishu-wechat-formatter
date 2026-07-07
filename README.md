@@ -34,3 +34,13 @@ python3 -m http.server 4173
 ```text
 http://127.0.0.1:4173/
 ```
+
+## 验证
+
+运行格式保真回归验证：
+
+```bash
+node tests/format-preservation.test.js
+```
+
+脚本会用 Chrome 打开页面，模拟飞书富文本粘贴，并确认字体、字号、颜色、分段、列表和表格样式都输出为公众号可用的内联样式。

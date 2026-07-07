@@ -66,6 +66,8 @@
 - 已增强纯 `strong` / `b` 子元素标题识别：即使没有显式 `font-weight`，也会按加粗参与智能标题判断。
 - 已更新脚本版本参数为 `app.js?v=20260707-child-heading-priority`，避免线上旧脚本缓存。
 - 已提交并推送子元素标题样式优先级增强，GitHub Pages 已构建完成并通过线上验证。
+- 已新增 `tests/format-preservation.test.js` 格式保真回归验证脚本，会用 Chrome 模拟飞书富文本粘贴，并检查字体、字号、颜色、分段、列表和表格样式是否输出为公众号可用的内联样式。
+- 已更新 `README.md`，补充格式保真验证命令。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -74,6 +76,7 @@
 - feishu-wechat-formatter/index.html
 - feishu-wechat-formatter/styles.css
 - feishu-wechat-formatter/README.md
+- feishu-wechat-formatter/tests/format-preservation.test.js
 
 已做出的关键决策
 - 不接入飞书 API，首版走剪贴板粘贴，降低配置门槛。
@@ -97,7 +100,7 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 用用户截图中的真实飞书文章重新粘贴验证“公众号排版”模式，确认圈红编号行进入标题计数并显示为标题。
+- 用真实飞书文章和微信公众号后台做最终粘贴验收；如果图片在公众号后台失效，再补图片上传或图床流程。
 
 当前是否有未提交改动
 - `feishu-wechat-formatter/` 内当前无未提交改动。
@@ -165,3 +168,5 @@
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上首页引用 `app.js?v=20260707-child-heading-priority`。
 - 已验证线上 `app.js` 包含 `dominantChildTextStyle`、`strong` / `b` 加粗处理，且默认 `currentFormatMode = "source"`。
+- 已验证静态检查：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
+- 已验证格式保真回归：`node tests/format-preservation.test.js` 通过，覆盖字体、字号、颜色、分段、列表和表格内联样式输出。
