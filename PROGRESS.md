@@ -41,6 +41,7 @@
 - 已增强“保持原格式”模式：父级 `color`、`font-size`、`font-family`、`line-height`、`text-align` 等文字样式会继承到段落、内联、列表项和表格单元格，再输出为公众号可识别的内联样式。
 - 已将界面里的“跟随原文”文案改为“保持原格式”，并更新介绍文案和 README，明确支持保留字体、字号、颜色、分段、列表、表格等格式。
 - 已更新脚本版本参数为 `app.js?v=20260707-source-inheritance`，避免线上旧脚本缓存。
+- 已提交并推送“保持原格式”继承样式增强，GitHub Pages 已构建完成并通过线上验证。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -67,10 +68,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送“保持原格式”继承样式增强，等待 GitHub Pages 自动更新后验证线上页面引用新版脚本。
+- 用真实飞书文章和微信公众号后台做最终粘贴验收；重点看图片、复杂表格和特殊字体是否仍需要补充兼容。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有“保持原格式”继承样式增强待提交。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -97,3 +98,6 @@
 - 已验证线上 `app.js` 包含 `darkgray`、`parseColorToRgb` 和 `max - min < 32` 灰色过滤逻辑。
 - 已验证语法和空白检查：`node --check app.js && git diff --check` 通过。
 - 已用 Chrome 无头模式打开本地 `index.html` 做真实 DOM 验证：在“保持原格式”模式中，父级字体、字号、颜色、行距、居中对齐可继承到段落、span、strong、li、td。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页包含“保持原格式”，并引用 `app.js?v=20260707-source-inheritance`。
+- 已验证线上 `app.js` 包含 `inheritedTextProperties`、`textInheritedStyle` 和“补齐继承样式”文案。
