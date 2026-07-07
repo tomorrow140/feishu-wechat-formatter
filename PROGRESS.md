@@ -51,6 +51,7 @@
 - 已提交并推送默认“保持原格式”调整，GitHub Pages 已构建完成并通过线上验证。
 - 已增强 `<style>` / class 样式内联化的保真度：按 CSS 优先级和规则顺序决定每个属性最终值，避免低优先级规则覆盖高优先级样式。
 - 已更新脚本版本参数为 `app.js?v=20260707-css-specificity`，避免线上旧脚本缓存。
+- 已提交并推送 CSS 优先级内联化增强，GitHub Pages 已构建完成并通过线上验证。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -78,10 +79,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送 CSS 优先级内联化增强，等待 GitHub Pages 自动更新后验证线上页面引用新版脚本。
+- 用真实飞书文章和微信公众号后台做最终粘贴验收；重点看图片、复杂表格、特殊字体和飞书临时图片地址是否仍需要补充兼容。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有 CSS 优先级内联化增强待提交。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -123,3 +124,6 @@
 - 已验证线上 `app.js` 默认 `currentFormatMode = "source"`。
 - 已验证语法和空白检查：`node --check app.js && git diff --check` 通过。
 - 已用 Chrome 无头模式打开本地 `index.html` 做真实 DOM 验证：`p.title` 可赢过 `.title`，同优先级后写规则可覆盖先写规则，原始内联样式仍最高优先级，输出不残留 `<style>` / `class` / `id`。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页默认选中“保持原格式”，并引用 `app.js?v=20260707-css-specificity`。
+- 已验证线上 `app.js` 包含 `selectorSpecificity`、`stylePriorityWins`、`rulePrioritiesByNode`，且默认 `currentFormatMode = "source"`。
