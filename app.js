@@ -165,25 +165,48 @@ function mergeStyles(...styles) {
   return Object.assign({}, ...styles);
 }
 
+const inheritedTextProperties = [
+  "color",
+  "font-family",
+  "font-size",
+  "font-style",
+  "font-weight",
+  "letter-spacing",
+  "line-height",
+  "text-align",
+  "text-decoration",
+  "white-space",
+];
+
+function textInheritedStyle(style) {
+  const inherited = {};
+  inheritedTextProperties.forEach((property) => {
+    if (style[property]) inherited[property] = style[property];
+  });
+  return inherited;
+}
+
 function tagName(node) {
   return node.tagName.toLowerCase();
 }
 
-function inlineChildren(node, profile) {
-  return [...node.childNodes].map((child) => transformNode(child, profile, true)).join("");
+function inlineChildren(node, profile, inheritedStyle = {}) {
+  return [...node.childNodes].map((child) => transformNode(child, profile, true, inheritedStyle)).join("");
 }
 
-function blockChildren(node, profile) {
-  return [...node.childNodes].map((child) => transformNode(child, profile, false)).join("");
+function blockChildren(node, profile, inheritedStyle = {}) {
+  return [...node.childNodes].map((child) => transformNode(child, profile, false, inheritedStyle)).join("");
 }
 
-function transformNode(node, profile, inline = false) {
+function transformNode(node, profile, inline = false, inheritedStyle = {}) {
   if (node.nodeType === Node.TEXT_NODE) return esc(normalizeText(node.textContent));
   if (node.nodeType !== Node.ELEMENT_NODE) return "";
 
   const tag = tagName(node);
   const ownStyle = styleFromNode(node);
-  const children = inlineChildren(node, profile).trim();
+  const sourceStyle = profile.mode === "source" ? mergeStyles(inheritedStyle, ownStyle) : ownStyle;
+  const childInheritedStyle = profile.mode === "source" ? mergeStyles(inheritedStyle, textInheritedStyle(ownStyle)) : {};
+  const children = inlineChildren(node, profile, childInheritedStyle).trim();
 
   if (!children && !["br", "img", "hr"].includes(tag)) return "";
   if (tag === "br") return "<br>";
@@ -193,22 +216,22 @@ function transformNode(node, profile, inline = false) {
       profile.keyMarks += 1;
       return wrapInline("strong", children, smartInlineStyle(ownStyle, profile, true));
     }
-    return wrapInline("strong", children, mergeStyles({ "font-weight": "700" }, ownStyle));
+    return wrapInline("strong", children, mergeStyles(sourceStyle, { "font-weight": "700" }));
   }
 
   if (tag === "em" || tag === "i") {
     if (profile.mode === "smart") {
       return wrapInline("em", children, mergeStyles({ color: profile.accent, "font-style": "normal" }, smartInlineStyle(ownStyle, profile)));
     }
-    return wrapInline("em", children, mergeStyles({ "font-style": "italic" }, ownStyle));
+    return wrapInline("em", children, mergeStyles(sourceStyle, { "font-style": "italic" }));
   }
 
   if (tag === "u") {
-    return wrapInline("span", children, mergeStyles({ "text-decoration": "underline" }, ownStyle));
+    return wrapInline("span", children, mergeStyles(sourceStyle, { "text-decoration": "underline" }));
   }
 
   if (tag === "s" || tag === "strike" || tag === "del") {
-    return wrapInline("span", children, mergeStyles({ "text-decoration": "line-through" }, ownStyle));
+    return wrapInline("span", children, mergeStyles(sourceStyle, { "text-decoration": "line-through" }));
   }
 
   if (tag === "code" && inline) {
@@ -223,7 +246,7 @@ function transformNode(node, profile, inline = false) {
           padding: "2px 5px",
           "border-radius": "4px",
         },
-        ownStyle,
+        sourceStyle,
       ),
     );
   }
@@ -231,27 +254,27 @@ function transformNode(node, profile, inline = false) {
   if (tag === "a") {
     const href = node.getAttribute("href") || "";
     const safeHref = /^https?:\/\//i.test(href) || href.startsWith("#") ? href : "";
-    const linkStyle = mergeStyles({ color: profile.accent, "text-decoration": "none" }, ownStyle);
+    const linkStyle = mergeStyles({ color: profile.accent, "text-decoration": "none" }, sourceStyle);
     return `<a href="${esc(safeHref)}" style="${styleText(linkStyle)}">${children}</a>`;
   }
 
   if (tag === "span") {
     if (profile.mode === "smart") return smartSpanHtml(children, ownStyle, profile);
-    return Object.keys(ownStyle).length ? wrapInline("span", children, ownStyle) : children;
+    return Object.keys(sourceStyle).length ? wrapInline("span", children, sourceStyle) : children;
   }
 
   if (/^h[1-6]$/.test(tag)) {
     if (tag === "h1") profile.titleAssigned = true;
     profile.seenContent = true;
-    return headingHtml(tag, children, ownStyle, profile);
+    return headingHtml(tag, children, sourceStyle, profile);
   }
-  if (tag === "blockquote") return quoteHtml(children, ownStyle, profile);
-  if (tag === "ul" || tag === "ol") return listHtml(node, tag, ownStyle, profile);
-  if (tag === "li") return listItemHtml(children, ownStyle, profile);
-  if (tag === "pre") return preHtml(node, ownStyle, profile);
-  if (tag === "img") return imageHtml(node, ownStyle);
-  if (tag === "table") return tableHtml(node, ownStyle, profile);
-  if (tag === "hr") return `<hr style="${styleText(mergeStyles({ margin: "24px 0", border: "0", "border-top": `1px solid ${profile.accent}` }, ownStyle))}">`;
+  if (tag === "blockquote") return quoteHtml(children, sourceStyle, profile);
+  if (tag === "ul" || tag === "ol") return listHtml(node, tag, sourceStyle, profile, childInheritedStyle);
+  if (tag === "li") return listItemHtml(children, sourceStyle, profile);
+  if (tag === "pre") return preHtml(node, sourceStyle, profile);
+  if (tag === "img") return imageHtml(node, sourceStyle);
+  if (tag === "table") return tableHtml(node, sourceStyle, profile, childInheritedStyle);
+  if (tag === "hr") return `<hr style="${styleText(mergeStyles({ margin: "24px 0", border: "0", "border-top": `1px solid ${profile.accent}` }, sourceStyle))}">`;
 
   if (tag === "p") {
     if (profile.mode === "smart") {
@@ -259,18 +282,18 @@ function transformNode(node, profile, inline = false) {
       if (promoted) return promoted;
     }
     profile.seenContent = true;
-    return paragraphHtml(children, ownStyle, profile);
+    return paragraphHtml(children, sourceStyle, profile);
   }
 
   if (["div", "section", "article", "main", "figure"].includes(tag)) {
     if (containsBlockElement(node)) {
-      const content = blockChildren(node, profile);
-      return Object.keys(ownStyle).length ? `<section style="${styleText(blockContainerStyle(ownStyle, profile))}">${content}</section>` : content;
+      const content = blockChildren(node, profile, childInheritedStyle);
+      return Object.keys(sourceStyle).length ? `<section style="${styleText(blockContainerStyle(sourceStyle, profile))}">${content}</section>` : content;
     }
-    return paragraphHtml(children, ownStyle, profile);
+    return paragraphHtml(children, sourceStyle, profile);
   }
 
-  return inline ? (Object.keys(ownStyle).length ? wrapInline("span", children, ownStyle) : children) : paragraphHtml(children, ownStyle, profile);
+  return inline ? (Object.keys(sourceStyle).length ? wrapInline("span", children, sourceStyle) : children) : paragraphHtml(children, sourceStyle, profile);
 }
 
 function wrapInline(tag, content, style) {
@@ -494,10 +517,10 @@ function quoteHtml(content, sourceStyle, profile) {
   )}">${content}</blockquote>`;
 }
 
-function listHtml(node, tag, sourceStyle, profile) {
+function listHtml(node, tag, sourceStyle, profile, inheritedStyle = {}) {
   const items = [...node.children]
     .filter((child) => child.tagName?.toLowerCase() === "li")
-    .map((child) => transformNode(child, profile))
+    .map((child) => transformNode(child, profile, false, inheritedStyle))
     .join("");
   const defaults = {
     margin: profile.mode === "smart" ? "14px 0 20px" : "14px 0 18px",
@@ -545,10 +568,13 @@ function imageHtml(node, sourceStyle) {
   return `<p style="${styleText({ margin: "22px 0", "text-align": "center" })}"><img src="${esc(src)}" alt="${esc(alt)}" style="${styleText(imageStyle)}"></p>`;
 }
 
-function tableHtml(table, sourceStyle, profile) {
+function tableHtml(table, sourceStyle, profile, inheritedStyle = {}) {
   const rows = [...table.querySelectorAll("tr")].map((row) => {
     const cells = [...row.children].map((cell) => {
       const cellTag = tagName(cell) === "th" ? "th" : "td";
+      const ownCellStyle = styleFromNode(cell);
+      const cellSourceStyle = profile.mode === "source" ? mergeStyles(inheritedStyle, ownCellStyle) : ownCellStyle;
+      const cellInheritedStyle = profile.mode === "source" ? mergeStyles(inheritedStyle, textInheritedStyle(ownCellStyle)) : {};
       const cellStyle = mergeStyles(
         {
           padding: "9px 8px",
@@ -560,9 +586,9 @@ function tableHtml(table, sourceStyle, profile) {
           "background-color": cellTag === "th" ? profile.soft : profile.paper,
           "vertical-align": "top",
         },
-        styleFromNode(cell),
+        cellSourceStyle,
       );
-      return `<${cellTag} style="${styleText(cellStyle)}">${inlineChildren(cell, profile)}</${cellTag}>`;
+      return `<${cellTag} style="${styleText(cellStyle)}">${inlineChildren(cell, profile, cellInheritedStyle)}</${cellTag}>`;
     });
     return `<tr>${cells.join("")}</tr>`;
   });
@@ -764,8 +790,8 @@ function renderReport(profile) {
   formatReport.innerHTML = `
     <div class="report-section">
       <span class="report-label">排版模式</span>
-      <strong>${profile.mode === "smart" ? "公众号一键排版" : "跟随当前飞书文档"}</strong>
-      <p>${profile.mode === "smart" ? "自动优化标题、正文行距和重点句。" : `已识别 ${profile.styledNodeCount} 个带样式节点。`}</p>
+      <strong>${profile.mode === "smart" ? "公众号一键排版" : "保持飞书原格式"}</strong>
+      <p>${profile.mode === "smart" ? "自动优化标题、正文行距和重点句。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
     </div>
     <div class="report-section">
       <span class="report-label">颜色</span>
