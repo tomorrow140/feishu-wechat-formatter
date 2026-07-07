@@ -65,7 +65,11 @@ const runnerHtml = `<!doctype html>
           <img data-src="https://example.com/lazy-feishu-image.png" alt="懒加载图片" width="280" height="160" style="border-radius: 8px;">
           <img src="https://example.com/right-image.png" alt="右对齐图片" style="width: 180px; text-align: right;">
           <ul style="list-style-type: square;"><li style="font-size: 15px;">列表项保留字号和项目符号</li></ul>
-          <table><tr><td>表格单元格保留颜色和背景</td></tr></table>
+          <table>
+            <tr><th colspan="2">表格标题跨两列</th></tr>
+            <tr><td rowspan="2">合并行单元格</td><td>表格单元格保留颜色和背景</td></tr>
+            <tr><td>第二行内容</td></tr>
+          </table>
         </div>
       \`;
 
@@ -126,6 +130,7 @@ const runnerHtml = `<!doctype html>
             assert(output.includes('src="https://example.com/right-image.png"') && output.includes('<p style="margin:22px 0;text-align:right">'), "图片对齐方式应保留到外层段落", output);
             assert(output.includes("list-style-type:square") && output.includes("font-size:15px"), "列表样式和列表项字号应保留", output);
             assert(includesAll(output, ["color:#245bdb", "font-size:14px", "background-color:#f2f5ff"]), "表格单元格颜色、字号和背景应保留", output);
+            assert(output.includes('colspan="2"') && output.includes('rowspan="2"'), "表格合并单元格的 colspan 和 rowspan 应保留", output);
             assert(/已识别\\s+\\d+\\s+个带样式节点/.test(report), "格式识别报告应该显示样式节点数量", report);
             assert(report.includes("图片 3"), "格式识别报告应该统计图片", report);
             assert(report.includes("链接 1"), "格式识别报告应该统计安全链接", report);
@@ -151,6 +156,7 @@ const runnerHtml = `<!doctype html>
             assert(copiedHtml.includes('src="https://example.com/feishu-image.png"') && copiedHtml.includes("width:320px"), "复制到公众号的 HTML 应保留图片和图片样式", copiedHtml);
             assert(copiedHtml.includes('src="https://example.com/lazy-feishu-image.png"') && copiedHtml.includes("height:160px"), "复制到公众号的 HTML 应保留 data-src 图片和尺寸", copiedHtml);
             assert(copiedHtml.includes('src="https://example.com/right-image.png"') && copiedHtml.includes("text-align:right"), "复制到公众号的 HTML 应保留图片对齐", copiedHtml);
+            assert(copiedHtml.includes('colspan="2"') && copiedHtml.includes('rowspan="2"'), "复制到公众号的 HTML 应保留表格合并单元格", copiedHtml);
             assert(copiedPlain.includes("岗位和角色在融合") && copiedPlain.includes("正文段落需要保留"), "复制到公众号的纯文本应保留正文内容", copiedPlain);
             assert(copiedPlain.includes("引用块需要保留") && copiedPlain.includes("安全链接"), "复制到公众号的纯文本应保留引用和链接文本", copiedPlain);
             assert(doc.querySelector("#statusText").innerText.includes("已复制富文本"), "复制成功后应提示已复制富文本");

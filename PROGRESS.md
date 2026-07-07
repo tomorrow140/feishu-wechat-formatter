@@ -77,6 +77,8 @@
 - 已更新脚本版本参数为 `app.js?v=20260707-image-src-attrs`，避免线上旧脚本缓存。
 - 已增强图片对齐保留：图片外层段落会优先使用图片自身或继承来的 `text-align`，避免所有图片都被强制居中。
 - 已更新脚本版本参数为 `app.js?v=20260707-image-align`，避免线上旧脚本缓存。
+- 已增强表格保真：输出表格单元格时会保留安全的 `colspan` 和 `rowspan`，避免飞书合并单元格在公众号里被拆散。
+- 已更新脚本版本参数为 `app.js?v=20260707-table-span`，避免线上旧脚本缓存。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -191,3 +193,4 @@
 - 已验证图片对齐保真：`node tests/format-preservation.test.js` 通过，覆盖图片 `text-align:right` 保留到外层段落。
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上首页引用 `app.js?v=20260707-image-align`。
+- 已验证表格合并单元格保真：`node tests/format-preservation.test.js` 通过，覆盖 `colspan` 和 `rowspan` 输出及富文本复制。

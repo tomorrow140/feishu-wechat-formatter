@@ -772,7 +772,7 @@ function tableHtml(table, sourceStyle, profile, inheritedStyle = {}) {
         },
         cellSourceStyle,
       );
-      return `<${cellTag} style="${styleText(cellStyle)}">${inlineChildren(cell, profile, cellInheritedStyle)}</${cellTag}>`;
+      return `<${cellTag}${tableCellSpanAttributes(cell)} style="${styleText(cellStyle)}">${inlineChildren(cell, profile, cellInheritedStyle)}</${cellTag}>`;
     });
     return `<tr>${cells.join("")}</tr>`;
   });
@@ -787,6 +787,20 @@ function tableHtml(table, sourceStyle, profile, inheritedStyle = {}) {
       sourceStyle,
     ),
   )}"><tbody>${rows.join("")}</tbody></table>`;
+}
+
+function tableCellSpanAttributes(cell) {
+  const attrs = [];
+  const colspan = positiveIntegerAttribute(cell.getAttribute("colspan"));
+  const rowspan = positiveIntegerAttribute(cell.getAttribute("rowspan"));
+  if (colspan) attrs.push(` colspan="${colspan}"`);
+  if (rowspan) attrs.push(` rowspan="${rowspan}"`);
+  return attrs.join("");
+}
+
+function positiveIntegerAttribute(value) {
+  const number = Number(String(value || "").trim());
+  return Number.isInteger(number) && number > 1 && number <= 100 ? number : "";
 }
 
 function plainTextToHtml(text) {
