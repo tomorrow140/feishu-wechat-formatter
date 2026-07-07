@@ -189,3 +189,5 @@
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上首页引用 `app.js?v=20260707-image-src-attrs`。
 - 已验证图片对齐保真：`node tests/format-preservation.test.js` 通过，覆盖图片 `text-align:right` 保留到外层段落。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260707-image-align`。
