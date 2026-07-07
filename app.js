@@ -148,9 +148,13 @@ function inlineEmbeddedStyles(root) {
     originalInlineStyles.set(node, styleFromNode(node));
   });
 
+  const ruleStylesByNode = new WeakMap();
+  const rulePrioritiesByNode = new WeakMap();
   const rulePattern = /([^{}@]+)\{([^{}]+)\}/g;
   let match;
+  let ruleOrder = 0;
   while ((match = rulePattern.exec(styleTextContent))) {
+    ruleOrder += 1;
     const ruleStyle = parseStyle(match[2]);
     if (!Object.keys(ruleStyle).length) continue;
 
@@ -159,6 +163,7 @@ function inlineEmbeddedStyles(root) {
       .map((selector) => selector.trim())
       .filter(isSupportedCssSelector)
       .forEach((selector) => {
+        const specificity = selectorSpecificity(selector);
         let nodes = [];
         try {
           nodes = [...root.querySelectorAll(selector)];
@@ -167,12 +172,27 @@ function inlineEmbeddedStyles(root) {
         }
 
         nodes.forEach((node) => {
-          const currentStyle = styleFromNode(node);
-          const originalStyle = originalInlineStyles.get(node) || {};
-          node.setAttribute("style", styleText(mergeStyles(currentStyle, ruleStyle, originalStyle)));
+          const nodeRuleStyle = ruleStylesByNode.get(node) || {};
+          const nodeRulePriorities = rulePrioritiesByNode.get(node) || {};
+          Object.entries(ruleStyle).forEach(([property, value]) => {
+            const priority = { specificity, order: ruleOrder };
+            if (stylePriorityWins(nodeRulePriorities[property], priority)) {
+              nodeRuleStyle[property] = value;
+              nodeRulePriorities[property] = priority;
+            }
+          });
+          ruleStylesByNode.set(node, nodeRuleStyle);
+          rulePrioritiesByNode.set(node, nodeRulePriorities);
         });
       });
   }
+
+  root.querySelectorAll("*").forEach((node) => {
+    const ruleStyle = ruleStylesByNode.get(node) || {};
+    const originalStyle = originalInlineStyles.get(node) || {};
+    const mergedStyle = mergeStyles(ruleStyle, originalStyle);
+    if (Object.keys(mergedStyle).length) node.setAttribute("style", styleText(mergedStyle));
+  });
 }
 
 function isSupportedCssSelector(selector) {
@@ -182,6 +202,25 @@ function isSupportedCssSelector(selector) {
     !/[{}<:"'`~+]|::?/.test(selector) &&
     /^[#.a-zA-Z0-9_\-\s>]+$/.test(selector)
   );
+}
+
+function selectorSpecificity(selector) {
+  const idCount = (selector.match(/#[a-zA-Z0-9_-]+/g) || []).length;
+  const classCount = (selector.match(/\.[a-zA-Z0-9_-]+/g) || []).length;
+  const tagCount = selector
+    .split(/\s+|>/)
+    .map((part) => part.replace(/[#.][a-zA-Z0-9_-]+/g, "").trim())
+    .filter(Boolean).length;
+  return [idCount, classCount, tagCount];
+}
+
+function stylePriorityWins(current, incoming) {
+  if (!current) return true;
+  for (let index = 0; index < incoming.specificity.length; index += 1) {
+    if (incoming.specificity[index] > current.specificity[index]) return true;
+    if (incoming.specificity[index] < current.specificity[index]) return false;
+  }
+  return incoming.order >= current.order;
 }
 
 function safeCssValue(value) {
