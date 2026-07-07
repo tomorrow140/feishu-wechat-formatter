@@ -728,7 +728,11 @@ function imageHtml(node, sourceStyle) {
   const alt = node.getAttribute("alt") || "";
   if (!src || /^javascript:/i.test(src)) return "";
   const imageStyle = mergeStyles({ display: "block", width: "100%", "max-width": "100%", height: "auto" }, imageAttributeStyle(node), sourceStyle);
-  return `<p style="${styleText({ margin: "22px 0", "text-align": "center" })}"><img src="${esc(src)}" alt="${esc(alt)}" style="${styleText(imageStyle)}"></p>`;
+  const wrapperStyle = {
+    margin: "22px 0",
+    "text-align": sourceStyle["text-align"] || "center",
+  };
+  return `<p style="${styleText(wrapperStyle)}"><img src="${esc(src)}" alt="${esc(alt)}" style="${styleText(imageStyle)}"></p>`;
 }
 
 function imageAttributeStyle(node) {

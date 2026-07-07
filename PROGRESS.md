@@ -75,6 +75,8 @@
 - 已增强格式保真回归验证：补充图片 `src`、`alt`、尺寸和圆角样式保留，以及报告中的图片计数。
 - 已增强图片兼容：清理 `data-*` 前会把图片 `data-src` / `data-original` / `data-lazy-src` / `data-image-src` / `data-url` 里的地址转成 `src`，并把图片 `width` / `height` 属性补成内联样式。
 - 已更新脚本版本参数为 `app.js?v=20260707-image-src-attrs`，避免线上旧脚本缓存。
+- 已增强图片对齐保留：图片外层段落会优先使用图片自身或继承来的 `text-align`，避免所有图片都被强制居中。
+- 已更新脚本版本参数为 `app.js?v=20260707-image-align`，避免线上旧脚本缓存。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -186,3 +188,4 @@
 - 已验证图片懒加载兼容：`node tests/format-preservation.test.js` 通过，覆盖 `data-src` 转 `src`，以及 `width` / `height` 属性转内联样式。
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上首页引用 `app.js?v=20260707-image-src-attrs`。
+- 已验证图片对齐保真：`node tests/format-preservation.test.js` 通过，覆盖图片 `text-align:right` 保留到外层段落。
