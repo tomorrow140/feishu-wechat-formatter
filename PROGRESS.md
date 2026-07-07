@@ -194,3 +194,5 @@
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上首页引用 `app.js?v=20260707-image-align`。
 - 已验证表格合并单元格保真：`node tests/format-preservation.test.js` 通过，覆盖 `colspan` 和 `rowspan` 输出及富文本复制。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260707-table-span`。
