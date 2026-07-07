@@ -66,31 +66,59 @@ button {
   background: rgba(255, 253, 250, 0.9);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
-  padding: 20px 22px;
+  padding: 14px 18px;
   display: grid;
-  grid-template-columns: minmax(280px, 0.92fr) minmax(360px, 1.08fr);
-  gap: 18px 22px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 18px;
+  align-items: center;
 }
 
 .intro-copy h2 {
   margin: 0;
   font-family: Georgia, "Songti SC", serif;
-  font-size: clamp(22px, 2.8vw, 34px);
-  line-height: 1.18;
+  font-size: clamp(18px, 2.1vw, 26px);
+  line-height: 1.22;
 }
 
 .intro-copy p {
-  margin: 12px 0 0;
+  margin: 6px 0 0;
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.intro-details {
+  justify-self: end;
+}
+
+.intro-details[open] {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+}
+
+.intro-details summary {
+  min-height: 38px;
+  padding: 9px 13px;
+  border: 1px solid rgba(25, 25, 23, 0.14);
+  border-radius: 8px;
+  background: #fffdfa;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.intro-details summary::-webkit-details-marker {
+  display: none;
 }
 
 .intro-points {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+  margin-top: 12px;
 }
 
 .intro-points div {
@@ -116,10 +144,10 @@ button {
 }
 
 .intro-flow {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+  margin-top: 8px;
 }
 
 .intro-flow span {
@@ -428,7 +456,7 @@ h2 {
   }
 
   .intro-band {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .format-rail {
@@ -458,6 +486,7 @@ h2 {
   }
 
   .intro-band {
+    grid-template-columns: 1fr;
     padding: 18px;
   }
 

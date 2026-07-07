@@ -22,33 +22,35 @@
 
       <section class="intro-band" aria-labelledby="introTitle">
         <div class="intro-copy">
-          <p class="panel-kicker">What it does</p>
-          <h2 id="introTitle">把飞书格式翻译成公众号更认识的格式</h2>
+          <p class="panel-kicker">默认保持原格式</p>
+          <h2 id="introTitle">粘贴飞书正文，复制到公众号</h2>
           <p>
-            直接从飞书粘贴到公众号时，很多格式靠公众号后台自己猜，容易丢颜色、行距、引用和表格。
-            这个工具会先把飞书复制出来的内容整理一遍，再复制成公众号更稳定的富文本。
+            优先保留字体、字号、颜色、行距和分段；需要美化时，再切换“公众号排版”。
           </p>
         </div>
-        <div class="intro-points" aria-label="核心亮点">
-          <div>
-            <strong>保持原格式</strong>
-            <span>保留飞书里的字体、字号、颜色、分段、列表和表格，再转成公众号可粘贴的富文本。</span>
+        <details class="intro-details">
+          <summary>查看实现逻辑</summary>
+          <div class="intro-points" aria-label="核心亮点">
+            <div>
+              <strong>保持原格式</strong>
+              <span>保留飞书里的字体、字号、颜色、分段、列表和表格，再转成公众号可粘贴的富文本。</span>
+            </div>
+            <div>
+              <strong>一键公众号排版</strong>
+              <span>需要美化时，可自动优化标题、正文行距和重点句，让文章更适合公众号阅读。</span>
+            </div>
+            <div>
+              <strong>重新打包复制</strong>
+              <span>清掉多余标记，生成带 style 的 HTML，再用富文本方式复制。</span>
+            </div>
           </div>
-          <div>
-            <strong>一键公众号排版</strong>
-            <span>需要美化时，可自动优化标题、正文行距和重点句，让文章更适合公众号阅读。</span>
+          <div class="intro-flow" aria-label="实现逻辑">
+            <span>飞书富文本</span>
+            <span>清洗</span>
+            <span>补齐样式</span>
+            <span>公众号富文本</span>
           </div>
-          <div>
-            <strong>重新打包复制</strong>
-            <span>清掉多余标记，生成带 style 的 HTML，再用富文本方式复制。</span>
-          </div>
-        </div>
-        <div class="intro-flow" aria-label="实现逻辑">
-          <span>飞书富文本</span>
-          <span>清洗</span>
-          <span>补齐样式</span>
-          <span>公众号富文本</span>
-        </div>
+        </details>
       </section>
 
       <main class="workspace">
@@ -115,6 +117,6 @@
       </footer>
     </div>
 
-    <script src="./app.js?v=20260707-css-specificity"></script>
+    <script src="./app.js?v=20260707-compact-ui"></script>
   </body>
 </html>
