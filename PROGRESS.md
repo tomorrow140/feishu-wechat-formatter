@@ -85,6 +85,8 @@
 - 已新增“个人理解：/我的理解：/我认为：/小结：”等段落识别，并输出为单独的理解块样式。
 - 已修复智能模式中外层 `div` 块级内容被预读导致标题/理解数量重复统计的问题。
 - 已更新 README 和回归测试，覆盖公众号风格切换、个人理解识别和引用块配色。
+- 已提交并推送公众号风格预设改动：`414f825 feat: add wechat style presets`。
+- 已确认 GitHub Pages 构建完成，线上页面已包含 4 个风格按钮和 `app.js?v=20260708-style-presets`。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -119,10 +121,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送本轮公众号风格预设改动，然后等待 GitHub Pages 构建完成并做线上 URL 验证。
+- 用真实飞书文章打开线上工具，切换 4 套公众号风格做人工预览；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`index.html`、`styles.css`、`app.js`、`README.md`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- `feishu-wechat-formatter/` 内当前有未提交改动：`PROGRESS.md`、`TODO.md` 进度收尾记录。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -206,3 +208,6 @@
 - 已验证线上首页引用 `app.js?v=20260707-table-span`。
 - 已验证公众号风格预设语法和空白检查：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证公众号风格预设回归：`node tests/format-preservation.test.js` 通过，覆盖科技/人物/商业风格切换、个人理解块、重点高亮、引用块配色和移动端无横向溢出。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页包含“科技蓝 / 知识青 / 人物红 / 商业金”，并引用 `app.js?v=20260708-style-presets`。
+- 已验证线上 `app.js` 包含 `wechatStylePresets`、个人理解识别和 `styleLabel` 报告逻辑。
