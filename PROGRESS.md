@@ -113,6 +113,8 @@
 - 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-default-block-text`，线上脚本不再包含 `insightText/quoteText`。
 - 已按用户澄清修正“默认色”含义：公众号排版中的普通正文、重点段、个人感受和引用文字色固定为正文标准色 `#1f2329`，不再使用随风格变化的 `profile.ink`。
 - 已更新回归测试和脚本版本参数为 `app.js?v=20260708-body-default-callouts`。
+- 已提交并推送正文标准色修复：`81c0802 fix: use body color for smart text`。
+- 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-body-default-callouts`。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -150,10 +152,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送个人感受/引用正文标准色修复，等待 GitHub Pages 构建完成并做线上脚本版本验证。
+- 用真实飞书文章打开线上工具，确认公众号排版中普通正文、重点段、个人感受和引用文字色均为正文标准色；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -267,3 +269,6 @@
 - 已验证线上 `app.js` 不再包含 `insightText/quoteText`，个人感受和引用均使用 `color: profile.ink`。
 - 已验证个人感受/引用正文标准色修复：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证正文标准色回归：`node tests/format-preservation.test.js` 通过，覆盖个人感受和引用均使用固定正文标准色 `#1f2329`，普通正文和重点段也回到正文标准色。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260708-body-default-callouts`。
+- 已验证线上 `app.js` 包含 `baseDocumentStyle.ink` 用于普通正文、重点段、个人感受和引用。
