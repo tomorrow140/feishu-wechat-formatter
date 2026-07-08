@@ -59,7 +59,7 @@ const runnerHtml = `<!doctype html>
           <p class="title">1、岗位和角色在融合，但 PM 不会消失</p>
           <p class="indent">正文段落需要保留字体、字号、颜色、行距和首行缩进。</p>
           <p>这一句里有 <span class="accent">红色重点</span>、<span style="background-color: #fff59d;">黄色高亮</span> 和 <strong>加粗文字</strong>。</p>
-          <p>玲玲感受：这类段落应该被公众号排版识别成单独的个人感受块。</p>
+          <p>00 的感受：这类段落应该被公众号排版识别成单独的个人感受块。</p>
           <blockquote class="quote">引用块需要保留左边框、背景和文字颜色。</blockquote>
           <p class="center"><u>下划线文字</u>、<s>删除线文字</s>、<code style="color: #111827;">inline code</code>、<a href="https://example.com/demo">安全链接</a></p>
           <img src="https://example.com/feishu-image.png" alt="飞书图片" style="width: 320px; border-radius: 6px;">
@@ -174,11 +174,12 @@ const runnerHtml = `<!doctype html>
             assert(smartOutput.includes("黄色高亮") && smartOutput.includes("font-weight:700"), "公众号排版应把正文重点统一处理为加粗", smartOutput);
             assert(!smartOutput.includes("background-color:#ffe8cc"), "公众号排版中的正文重点不应再使用高亮底色", smartOutput);
             assert(
-              smartOutput.includes("background-color:#fff1f2") &&
-                smartOutput.includes("玲玲感受") &&
+              smartOutput.includes("background-color:#f6f7f8") &&
+                smartOutput.includes("00 的感受") &&
+                smartOutput.includes("border-left:4px solid #f43f5e") &&
                 smartOutput.includes("font-size:15px") &&
                 smartOutput.includes("font-weight:600"),
-              "玲玲感受段落应识别为主题浅底的个人感受块",
+              "00 的感受段落应识别为浅灰底、主题竖线的个人感受块",
               smartOutput,
             );
             assert(
@@ -192,7 +193,7 @@ const runnerHtml = `<!doctype html>
 
             doc.querySelector('[data-wechat-style="business"]').click();
             const businessOutput = doc.querySelector("#preview").innerHTML;
-            assert(businessOutput.includes("color:#8a5a00") && businessOutput.includes("background-color:#fbf7ed"), "切换商业金后预览应立即换成商业金配色", businessOutput);
+            assert(businessOutput.includes("color:#8a5a00") && businessOutput.includes("border-left:4px solid #d19a25"), "切换商业金后预览应立即换成商业金标题和个人感受竖线配色", businessOutput);
 
             document.body.dataset.testResult = "pass";
             document.body.textContent = JSON.stringify({ ok: true, report: smartReport });

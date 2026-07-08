@@ -28,7 +28,7 @@ const wechatStylePresets = {
     quoteBg: "#f6f7f8",
     quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
-    insightBg: "#eef6ff",
+    insightBg: "#f6f7f8",
     insightText: "#172554",
     insightBorder: "#60a5fa",
   },
@@ -41,7 +41,7 @@ const wechatStylePresets = {
     quoteBg: "#f6f7f8",
     quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
-    insightBg: "#eefaf3",
+    insightBg: "#f6f7f8",
     insightText: "#064e3b",
     insightBorder: "#22c55e",
   },
@@ -54,7 +54,7 @@ const wechatStylePresets = {
     quoteBg: "#f6f7f8",
     quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
-    insightBg: "#fff1f2",
+    insightBg: "#f6f7f8",
     insightText: "#7f1d1d",
     insightBorder: "#f43f5e",
   },
@@ -67,7 +67,7 @@ const wechatStylePresets = {
     quoteBg: "#f6f7f8",
     quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
-    insightBg: "#fbf7ed",
+    insightBg: "#f6f7f8",
     insightText: "#5f3b00",
     insightBorder: "#d19a25",
   },
@@ -149,7 +149,7 @@ const sampleHtml = `
   <p style="font-size: 16px; line-height: 1.95; color: #1f2329;">这次工具可以一键改成公众号更适合阅读的样子，同时识别飞书里标过的重点。</p>
   <p style="font-size: 21px; color: #245bdb; font-weight: 800;">1、自动识别标题和重点句</p>
   <p style="line-height: 1.95;">短标题、编号标题会变成更清楚的标题。飞书里的<strong style="color: #d83931;">加粗重点</strong>、<span style="background-color: #fff59d;">黄色高亮句子</span>会被保留下来。</p>
-  <p style="line-height: 1.95;">玲玲感受：真正有用的工具不是替你决定风格，而是把你在飞书里已经标出的层级，转成公众号里更稳定的表达。</p>
+  <p style="line-height: 1.95;">00 的感受：真正有用的工具不是替你决定风格，而是把你在飞书里已经标出的层级，转成公众号里更稳定的表达。</p>
   <blockquote style="background-color: #f2f5ff; border-left: 4px solid #245bdb; padding: 12px 16px; color: #334155;">核心原则：正文更耐读，重点更醒目，复制到公众号后格式更稳定。</blockquote>
   <ul style="line-height: 1.9;">
     <li><strong style="color: #d83931;">复制飞书正文</strong>，粘贴到左侧。</li>
@@ -537,7 +537,7 @@ function isMarkedStyle(style, profile) {
 
 function isInsightBlockText(text) {
   const normalized = normalizeText(text).trim().replace(/\s+/g, "");
-  return /^(玲玲感受|玲玲的个人感受|玲玲个人感受|个人感受|个人理解|我的理解|个人看法|我的看法|我的判断|一点理解|我认为|我觉得|小结|总结)[：:]/.test(normalized);
+  return /^([A-Za-z0-9\u4e00-\u9fa5_]{1,12}的感受|[A-Za-z0-9\u4e00-\u9fa5_]{1,12}感受|个人理解|我的理解|个人看法|我的看法|我的判断|一点理解|我认为|我觉得|小结|总结)[：:]/.test(normalized);
 }
 
 function smartInlineStyle(sourceStyle, profile, strong = false) {
