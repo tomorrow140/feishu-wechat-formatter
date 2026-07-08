@@ -26,10 +26,8 @@ const wechatStylePresets = {
     muted: "#64748b",
     soft: "#edf4ff",
     quoteBg: "#f6f7f8",
-    quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
     insightBg: "#f6f7f8",
-    insightText: "#172554",
     insightBorder: "#60a5fa",
   },
   knowledge: {
@@ -39,10 +37,8 @@ const wechatStylePresets = {
     muted: "#5f716c",
     soft: "#ecfdf5",
     quoteBg: "#f6f7f8",
-    quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
     insightBg: "#f6f7f8",
-    insightText: "#064e3b",
     insightBorder: "#22c55e",
   },
   editorial: {
@@ -52,10 +48,8 @@ const wechatStylePresets = {
     muted: "#746865",
     soft: "#fff1ed",
     quoteBg: "#f6f7f8",
-    quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
     insightBg: "#f6f7f8",
-    insightText: "#7f1d1d",
     insightBorder: "#f43f5e",
   },
   business: {
@@ -65,10 +59,8 @@ const wechatStylePresets = {
     muted: "#6f6758",
     soft: "#fbf4df",
     quoteBg: "#f6f7f8",
-    quoteText: "#4b5563",
     quoteBorder: "#d0d5dd",
     insightBg: "#f6f7f8",
-    insightText: "#5f3b00",
     insightBorder: "#d19a25",
   },
 };
@@ -632,7 +624,7 @@ function insightHtml(content, profile) {
   return `<p style="${styleText({
     margin: "20px 0",
     padding: "13px 15px",
-    color: profile.insightText,
+    color: profile.ink,
     "background-color": profile.insightBg,
     "border-left": `4px solid ${profile.insightBorder}`,
     "border-radius": "0 6px 6px 0",
@@ -736,7 +728,7 @@ function quoteHtml(content, sourceStyle, profile) {
     return `<blockquote style="${styleText({
       margin: "20px 0",
       padding: "14px 16px",
-      color: profile.quoteText,
+      color: profile.ink,
       "background-color": profile.quoteBg,
       "border-left": `3px solid ${profile.quoteBorder}`,
       "border-radius": "0 6px 6px 0",
