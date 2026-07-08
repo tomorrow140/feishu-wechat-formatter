@@ -95,6 +95,8 @@
 - 已按用户要求将“公众号排版”中的正文重点统一改为加粗：飞书加粗、标色、背景高亮都会输出为加粗，不再给正文重点额外加底色、左边框或主题色。
 - 已保留个人理解块和引用块的独立模块样式；它们不属于普通正文重点句。
 - 已更新 README、格式识别说明和回归测试，脚本版本参数改为 `app.js?v=20260708-bold-marks`。
+- 已提交并推送正文重点统一加粗改动：`f835d53 fix: render smart marks as bold`。
+- 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-bold-marks`，线上脚本已显示“重点加粗”说明且不再包含 `markBg/markText` 正文重点底色配置。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -131,10 +133,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送正文重点统一加粗改动，等待 GitHub Pages 构建完成并做线上脚本版本验证。
+- 用真实飞书文章打开线上工具，确认正文重点在“公众号排版”中只显示为加粗；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`README.md`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -228,3 +230,6 @@
 - 已验证线上 `app.js` 包含 `const firstTitle = !numbered` 和 `const largeTitle = !numbered` 逻辑。
 - 已验证正文重点统一加粗改动：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证正文重点统一加粗回归：`node tests/format-preservation.test.js` 通过，覆盖公众号排版中高亮/重点内容变为加粗，且不再输出正文重点高亮底色。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260708-bold-marks`。
+- 已验证线上 `app.js` 包含“重点加粗”说明，并不再包含 `markBg/markText` 配置。
