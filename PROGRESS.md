@@ -101,6 +101,8 @@
 - 已新增“玲玲感受：/玲玲的个人感受：/玲玲个人感受：/个人感受：”识别词，进入个人感受块。
 - 已将格式报告里的个人感受计数文案从“理解”改为“感受”。
 - 已更新 README、格式识别说明、示例和回归测试，脚本版本参数改为 `app.js?v=20260708-feeling-quote`。
+- 已提交并推送个人感受/引用样式改动：`440611f feat: tune feelings and quotes`。
+- 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-feeling-quote`，线上脚本包含“玲玲感受”识别、引用 3px 灰色细竖线和 400 字重逻辑。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -138,10 +140,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送个人感受/引用样式改动，等待 GitHub Pages 构建完成并做线上脚本版本验证。
+- 用真实飞书文章打开线上工具，确认“玲玲感受”块和引用块在“公众号排版”中的视觉区分；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`README.md`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -240,3 +242,6 @@
 - 已验证线上 `app.js` 包含“重点加粗”说明，并不再包含 `markBg/markText` 配置。
 - 已验证个人感受/引用样式改动：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证个人感受/引用样式回归：`node tests/format-preservation.test.js` 通过，覆盖“玲玲感受”识别为主题浅底个人感受块，引用块使用浅灰底、灰色细竖线和正常字重，报告显示“感受 1”。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260708-feeling-quote`。
+- 已验证线上 `app.js` 包含“玲玲感受/个人感受”识别、引用 `3px solid` 细竖线和 `font-weight:400`。
