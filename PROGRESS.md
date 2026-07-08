@@ -118,6 +118,8 @@
 - 已修复“公众号排版”中飞书内部蓝色 `span` 覆盖默认正文色的问题：普通正文、个人感受、引用和列表项会把内部文字色统一压回正文标准色 `#1f2329`。
 - 已加固格式回归测试：测试 runner 会等待 iframe 内的 `convert()` 可用后再执行，避免无头 Chrome 偶发停在 pending。
 - 已更新脚本版本参数为 `app.js?v=20260708-force-smart-body-color`，用于绕过线上旧缓存。
+- 已提交并推送内部文字色修复：`e799d49 fix: force smart body text color`。
+- 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-force-smart-body-color`，线上脚本包含 `defaultTextContent` 内部文字色修复。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -155,10 +157,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送本轮内部文字色修复；等待 GitHub Pages 构建完成后，在线上工具用真实飞书文章确认个人感受、引用和普通正文不再被主题色染蓝。
+- 在线上工具用真实飞书文章确认个人感受、引用和普通正文不再被主题色染蓝；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -276,4 +278,6 @@
 - 已验证线上首页引用 `app.js?v=20260708-body-default-callouts`。
 - 已验证：`node --check app.js`、`node --check tests/format-preservation.test.js`、`git diff --check` 均通过。
 - 已验证：`node tests/format-preservation.test.js` 通过，覆盖个人感受和引用内部蓝色 `span` 被改为 `#1f2329`。
+- 已验证线上首页引用 `app.js?v=20260708-force-smart-body-color`。
+- 已验证线上脚本包含 `defaultTextContent`、`style.color = baseDocumentStyle.ink`，以及个人感受、引用、列表项调用该函数的逻辑。
 - 已验证线上 `app.js` 包含 `baseDocumentStyle.ink` 用于普通正文、重点段、个人感受和引用。
