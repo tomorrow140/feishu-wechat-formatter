@@ -582,9 +582,10 @@ function smartPromotedHeading(node, children, sourceStyle, profile) {
   const shortEnough = text.length <= 58;
   const numbered = /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text);
   const styledHeading = fontWeightValue(headingStyle) >= 600 || numericPx(headingStyle["font-size"]) >= 19;
-  const firstTitle = !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
+  const firstTitle = !numbered && !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
+  const largeTitle = !numbered && shortEnough && numericPx(headingStyle["font-size"]) >= 24;
 
-  if (!profile.titleAssigned && (firstTitle || (shortEnough && numericPx(headingStyle["font-size"]) >= 24))) {
+  if (!profile.titleAssigned && (firstTitle || largeTitle)) {
     profile.titleAssigned = true;
     profile.seenContent = true;
     profile.autoHeadings += 1;

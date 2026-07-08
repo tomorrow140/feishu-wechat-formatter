@@ -65,6 +65,7 @@ const runnerHtml = `<!doctype html>
           <img src="https://example.com/feishu-image.png" alt="飞书图片" style="width: 320px; border-radius: 6px;">
           <img data-src="https://example.com/lazy-feishu-image.png" alt="懒加载图片" width="280" height="160" style="border-radius: 8px;">
           <img src="https://example.com/right-image.png" alt="右对齐图片" style="width: 180px; text-align: right;">
+          <p class="title">2、IC和管理者的关系：管理者和IC不会消失</p>
           <ul style="list-style-type: square;"><li style="font-size: 15px;">列表项保留字号和项目符号</li></ul>
           <table>
             <tr><th colspan="2">表格标题跨两列</th></tr>
@@ -167,7 +168,9 @@ const runnerHtml = `<!doctype html>
             const smartReport = doc.querySelector("#formatReport").innerText;
             assert(doc.querySelector('[data-format-mode="smart"]').classList.contains("active"), "点击公众号风格后应自动切到公众号排版");
             assert(doc.querySelector('[data-wechat-style="editorial"]').classList.contains("active"), "人物红风格按钮应进入选中态");
-            assert(smartOutput.includes("color:#b42318") && smartOutput.includes("border-left:5px solid #b42318"), "人物红风格应影响标题颜色", smartOutput);
+            const numberedHeadingCount = (smartOutput.match(/border-left:5px solid #b42318/g) || []).length;
+            assert(numberedHeadingCount >= 2, "同级编号标题都应使用 H2 竖线样式", smartOutput);
+            assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
             assert(smartOutput.includes("background-color:#ffe8cc") && smartOutput.includes("黄色高亮"), "公众号排版应按当前风格处理重点高亮", smartOutput);
             assert(smartOutput.includes("background-color:#fff1f2") && smartOutput.includes("个人理解"), "个人理解段落应识别为单独样式块", smartOutput);
             assert(smartOutput.includes("background-color:#fff7ed") && smartOutput.includes("border-left:4px solid #dc6803"), "引用块应使用当前风格配色", smartOutput);
