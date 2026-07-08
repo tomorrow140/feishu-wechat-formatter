@@ -109,6 +109,8 @@
 - 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-gray-feeling`，线上脚本包含 `00 的感受` 示例、通用“某某的感受”识别和统一浅灰 `insightBg`。
 - 已按用户要求将“公众号排版”中的个人感受文字色和引用文字色统一改为正文默认色 `profile.ink`，保留个人感受主题色竖线和引用灰色细竖线。
 - 已移除 4 套公众号风格预设中不再使用的 `insightText` 和 `quoteText` 字段，并更新脚本版本参数为 `app.js?v=20260708-default-block-text`。
+- 已提交并推送个人感受/引用默认文字色改动：`6e70996 fix: use default text for callouts`。
+- 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-default-block-text`，线上脚本不再包含 `insightText/quoteText`。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -146,10 +148,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送个人感受/引用默认文字色改动，等待 GitHub Pages 构建完成并做线上脚本版本验证。
+- 用真实飞书文章打开线上工具，确认个人感受和引用文字色均为正文默认色；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -258,3 +260,6 @@
 - 已验证线上 `app.js` 包含 `00 的感受`、通用“某某的感受”识别和 4 套风格统一 `insightBg: "#f6f7f8"`。
 - 已验证个人感受/引用默认文字色改动：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证个人感受/引用默认文字色回归：`node tests/format-preservation.test.js` 通过，覆盖个人感受和引用均使用当前风格正文默认色。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260708-default-block-text`。
+- 已验证线上 `app.js` 不再包含 `insightText/quoteText`，个人感受和引用均使用 `color: profile.ink`。
