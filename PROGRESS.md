@@ -90,6 +90,8 @@
 - 已修复“公众号排版”中首个编号标题被误升为 H1 横线标题的问题：编号标题不再参与文章主标题判断，统一按 H2 章节标题输出竖线样式。
 - 已补充回归用例：同一篇文档里的 `1、...` 和 `2、...` 都应使用同级 H2 竖线样式，且不应出现 H1 横线样式。
 - 已更新脚本版本参数为 `app.js?v=20260708-numbered-heading`，避免线上继续加载旧逻辑。
+- 已提交并推送编号标题一致性修复：`d9f8536 fix: keep numbered headings consistent`。
+- 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-numbered-heading`，线上脚本已包含 `!numbered` 排除逻辑。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -125,10 +127,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送编号标题一致性修复，等待 GitHub Pages 构建完成并做线上脚本版本验证。
+- 用真实飞书文章打开线上工具，确认 `1、...` 和 `2、...` 这类同级编号标题在“公众号排版”中都显示为同一种章节标题样式；再去微信公众号后台做最终粘贴验收。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- `feishu-wechat-formatter/` 内当前无未提交改动。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -217,3 +219,6 @@
 - 已验证线上 `app.js` 包含 `wechatStylePresets`、个人理解识别和 `styleLabel` 报告逻辑。
 - 已验证编号标题一致性修复：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
 - 已验证编号标题一致性回归：`node tests/format-preservation.test.js` 通过，覆盖同级编号标题都使用 H2 竖线样式，且不再输出 H1 横线样式。
+- 已验证 GitHub Pages 已变为 `built`。
+- 已验证线上首页引用 `app.js?v=20260708-numbered-heading`。
+- 已验证线上 `app.js` 包含 `const firstTitle = !numbered` 和 `const largeTitle = !numbered` 逻辑。
