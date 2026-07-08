@@ -25,9 +25,9 @@ const wechatStylePresets = {
     ink: "#20242a",
     muted: "#64748b",
     soft: "#edf4ff",
-    quoteBg: "#f5f8ff",
-    quoteText: "#334155",
-    quoteBorder: "#245bdb",
+    quoteBg: "#f6f7f8",
+    quoteText: "#4b5563",
+    quoteBorder: "#d0d5dd",
     insightBg: "#eef6ff",
     insightText: "#172554",
     insightBorder: "#60a5fa",
@@ -38,9 +38,9 @@ const wechatStylePresets = {
     ink: "#1f2a27",
     muted: "#5f716c",
     soft: "#ecfdf5",
-    quoteBg: "#f3faf7",
-    quoteText: "#24433d",
-    quoteBorder: "#14b8a6",
+    quoteBg: "#f6f7f8",
+    quoteText: "#4b5563",
+    quoteBorder: "#d0d5dd",
     insightBg: "#eefaf3",
     insightText: "#064e3b",
     insightBorder: "#22c55e",
@@ -51,9 +51,9 @@ const wechatStylePresets = {
     ink: "#24201f",
     muted: "#746865",
     soft: "#fff1ed",
-    quoteBg: "#fff7ed",
-    quoteText: "#4a3128",
-    quoteBorder: "#dc6803",
+    quoteBg: "#f6f7f8",
+    quoteText: "#4b5563",
+    quoteBorder: "#d0d5dd",
     insightBg: "#fff1f2",
     insightText: "#7f1d1d",
     insightBorder: "#f43f5e",
@@ -64,9 +64,9 @@ const wechatStylePresets = {
     ink: "#201d17",
     muted: "#6f6758",
     soft: "#fbf4df",
-    quoteBg: "#f8f6ef",
-    quoteText: "#3f3524",
-    quoteBorder: "#b7791f",
+    quoteBg: "#f6f7f8",
+    quoteText: "#4b5563",
+    quoteBorder: "#d0d5dd",
     insightBg: "#fbf7ed",
     insightText: "#5f3b00",
     insightBorder: "#d19a25",
@@ -149,7 +149,7 @@ const sampleHtml = `
   <p style="font-size: 16px; line-height: 1.95; color: #1f2329;">这次工具可以一键改成公众号更适合阅读的样子，同时识别飞书里标过的重点。</p>
   <p style="font-size: 21px; color: #245bdb; font-weight: 800;">1、自动识别标题和重点句</p>
   <p style="line-height: 1.95;">短标题、编号标题会变成更清楚的标题。飞书里的<strong style="color: #d83931;">加粗重点</strong>、<span style="background-color: #fff59d;">黄色高亮句子</span>会被保留下来。</p>
-  <p style="line-height: 1.95;">个人理解：真正有用的工具不是替你决定风格，而是把你在飞书里已经标出的层级，转成公众号里更稳定的表达。</p>
+  <p style="line-height: 1.95;">玲玲感受：真正有用的工具不是替你决定风格，而是把你在飞书里已经标出的层级，转成公众号里更稳定的表达。</p>
   <blockquote style="background-color: #f2f5ff; border-left: 4px solid #245bdb; padding: 12px 16px; color: #334155;">核心原则：正文更耐读，重点更醒目，复制到公众号后格式更稳定。</blockquote>
   <ul style="line-height: 1.9;">
     <li><strong style="color: #d83931;">复制飞书正文</strong>，粘贴到左侧。</li>
@@ -537,7 +537,7 @@ function isMarkedStyle(style, profile) {
 
 function isInsightBlockText(text) {
   const normalized = normalizeText(text).trim().replace(/\s+/g, "");
-  return /^(个人理解|我的理解|个人看法|我的看法|我的判断|一点理解|我认为|我觉得|小结|总结)[：:]/.test(normalized);
+  return /^(玲玲感受|玲玲的个人感受|玲玲个人感受|个人感受|个人理解|我的理解|个人看法|我的看法|我的判断|一点理解|我认为|我觉得|小结|总结)[：:]/.test(normalized);
 }
 
 function smartInlineStyle(sourceStyle, profile, strong = false) {
@@ -636,8 +636,9 @@ function insightHtml(content, profile) {
     "background-color": profile.insightBg,
     "border-left": `4px solid ${profile.insightBorder}`,
     "border-radius": "0 6px 6px 0",
-    "font-size": "16px",
-    "line-height": "1.9",
+    "font-family": profile.font,
+    "font-size": "15px",
+    "line-height": "1.85",
     "font-weight": "600",
     "letter-spacing": "0",
   })}">${content}</p>`;
@@ -737,10 +738,12 @@ function quoteHtml(content, sourceStyle, profile) {
       padding: "14px 16px",
       color: profile.quoteText,
       "background-color": profile.quoteBg,
-      "border-left": `4px solid ${profile.quoteBorder}`,
+      "border-left": `3px solid ${profile.quoteBorder}`,
       "border-radius": "0 6px 6px 0",
+      "font-family": profile.font,
       "font-size": "15px",
       "line-height": "1.85",
+      "font-weight": "400",
     })}">${content}</blockquote>`;
   }
 
@@ -1075,7 +1078,7 @@ function renderReport(profile) {
     <div class="report-section">
       <span class="report-label">排版模式</span>
       <strong>${profile.mode === "smart" ? `公众号一键排版 · ${esc(profile.styleLabel)}` : "保持飞书原格式"}</strong>
-      <p>${profile.mode === "smart" ? "自动优化标题、正文行距、重点加粗、个人理解和引用块。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
+      <p>${profile.mode === "smart" ? "自动优化标题、正文行距、重点加粗、个人感受和引用块。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
     </div>
     <div class="report-section">
       <span class="report-label">颜色</span>
@@ -1092,7 +1095,7 @@ function renderReport(profile) {
     <div class="report-section compact-metrics">
       <span>标题 ${profile.autoHeadings}</span>
       <span>重点 ${profile.keyMarks}</span>
-      <span>理解 ${profile.insights}</span>
+      <span>感受 ${profile.insights}</span>
       <span>图片 ${profile.images}</span>
       <span>表格 ${profile.tables}</span>
       <span>链接 ${profile.links}</span>

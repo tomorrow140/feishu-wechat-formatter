@@ -59,7 +59,7 @@ const runnerHtml = `<!doctype html>
           <p class="title">1、岗位和角色在融合，但 PM 不会消失</p>
           <p class="indent">正文段落需要保留字体、字号、颜色、行距和首行缩进。</p>
           <p>这一句里有 <span class="accent">红色重点</span>、<span style="background-color: #fff59d;">黄色高亮</span> 和 <strong>加粗文字</strong>。</p>
-          <p>个人理解：这类段落应该被公众号排版识别成单独的理解块。</p>
+          <p>玲玲感受：这类段落应该被公众号排版识别成单独的个人感受块。</p>
           <blockquote class="quote">引用块需要保留左边框、背景和文字颜色。</blockquote>
           <p class="center"><u>下划线文字</u>、<s>删除线文字</s>、<code style="color: #111827;">inline code</code>、<a href="https://example.com/demo">安全链接</a></p>
           <img src="https://example.com/feishu-image.png" alt="飞书图片" style="width: 320px; border-radius: 6px;">
@@ -173,9 +173,22 @@ const runnerHtml = `<!doctype html>
             assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
             assert(smartOutput.includes("黄色高亮") && smartOutput.includes("font-weight:700"), "公众号排版应把正文重点统一处理为加粗", smartOutput);
             assert(!smartOutput.includes("background-color:#ffe8cc"), "公众号排版中的正文重点不应再使用高亮底色", smartOutput);
-            assert(smartOutput.includes("background-color:#fff1f2") && smartOutput.includes("个人理解"), "个人理解段落应识别为单独样式块", smartOutput);
-            assert(smartOutput.includes("background-color:#fff7ed") && smartOutput.includes("border-left:4px solid #dc6803"), "引用块应使用当前风格配色", smartOutput);
-            assert(smartReport.includes("公众号一键排版 · 人物红") && smartReport.includes("理解 1"), "格式报告应显示当前风格和理解块数量", smartReport);
+            assert(
+              smartOutput.includes("background-color:#fff1f2") &&
+                smartOutput.includes("玲玲感受") &&
+                smartOutput.includes("font-size:15px") &&
+                smartOutput.includes("font-weight:600"),
+              "玲玲感受段落应识别为主题浅底的个人感受块",
+              smartOutput,
+            );
+            assert(
+              smartOutput.includes("background-color:#f6f7f8") &&
+                smartOutput.includes("border-left:3px solid #d0d5dd") &&
+                smartOutput.includes("font-weight:400"),
+              "引用块应使用浅灰底、灰色细竖线和正常字重",
+              smartOutput,
+            );
+            assert(smartReport.includes("公众号一键排版 · 人物红") && smartReport.includes("感受 1"), "格式报告应显示当前风格和个人感受数量", smartReport);
 
             doc.querySelector('[data-wechat-style="business"]').click();
             const businessOutput = doc.querySelector("#preview").innerHTML;
