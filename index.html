@@ -86,6 +86,24 @@
             <button class="mode-button" type="button" data-format-mode="smart" role="tab" aria-selected="false">公众号排版</button>
             <button class="mode-button active" type="button" data-format-mode="source" role="tab" aria-selected="true">保持原格式</button>
           </div>
+          <div class="style-switch" aria-label="公众号排版风格">
+            <button class="style-button active" type="button" data-wechat-style="tech">
+              <i class="style-swatch" style="background: #245bdb"></i>
+              <span>科技蓝</span>
+            </button>
+            <button class="style-button" type="button" data-wechat-style="knowledge">
+              <i class="style-swatch" style="background: #0f766e"></i>
+              <span>知识青</span>
+            </button>
+            <button class="style-button" type="button" data-wechat-style="editorial">
+              <i class="style-swatch" style="background: #b42318"></i>
+              <span>人物红</span>
+            </button>
+            <button class="style-button" type="button" data-wechat-style="business">
+              <i class="style-swatch" style="background: #8a5a00"></i>
+              <span>商业金</span>
+            </button>
+          </div>
           <div id="formatReport" class="format-report" aria-live="polite">
             <div class="empty-report">粘贴飞书文档后，会在这里显示识别到的样式。</div>
           </div>
@@ -117,6 +135,6 @@
       </footer>
     </div>
 
-    <script src="./app.js?v=20260707-table-span"></script>
+    <script src="./app.js?v=20260708-style-presets"></script>
   </body>
 </html>

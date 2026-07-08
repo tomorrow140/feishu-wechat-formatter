@@ -2,6 +2,7 @@ const rawEditor = document.querySelector("#rawEditor");
 const preview = document.querySelector("#preview");
 const formatReport = document.querySelector("#formatReport");
 const modeButtons = document.querySelectorAll("[data-format-mode]");
+const styleButtons = document.querySelectorAll("[data-wechat-style]");
 const statusText = document.querySelector("#statusText");
 const wordCount = document.querySelector("#wordCount");
 const blockCount = document.querySelector("#blockCount");
@@ -15,6 +16,69 @@ const baseDocumentStyle = {
   accent: "#3370ff",
   soft: "#f2f5ff",
   font: "'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif",
+};
+
+const wechatStylePresets = {
+  tech: {
+    label: "科技蓝",
+    accent: "#245bdb",
+    ink: "#20242a",
+    muted: "#64748b",
+    soft: "#edf4ff",
+    markBg: "#fff4bf",
+    markText: "#20242a",
+    quoteBg: "#f5f8ff",
+    quoteText: "#334155",
+    quoteBorder: "#245bdb",
+    insightBg: "#eef6ff",
+    insightText: "#172554",
+    insightBorder: "#60a5fa",
+  },
+  knowledge: {
+    label: "知识青",
+    accent: "#0f766e",
+    ink: "#1f2a27",
+    muted: "#5f716c",
+    soft: "#ecfdf5",
+    markBg: "#fff7cc",
+    markText: "#1f2a27",
+    quoteBg: "#f3faf7",
+    quoteText: "#24433d",
+    quoteBorder: "#14b8a6",
+    insightBg: "#eefaf3",
+    insightText: "#064e3b",
+    insightBorder: "#22c55e",
+  },
+  editorial: {
+    label: "人物红",
+    accent: "#b42318",
+    ink: "#24201f",
+    muted: "#746865",
+    soft: "#fff1ed",
+    markBg: "#ffe8cc",
+    markText: "#24201f",
+    quoteBg: "#fff7ed",
+    quoteText: "#4a3128",
+    quoteBorder: "#dc6803",
+    insightBg: "#fff1f2",
+    insightText: "#7f1d1d",
+    insightBorder: "#f43f5e",
+  },
+  business: {
+    label: "商业金",
+    accent: "#8a5a00",
+    ink: "#201d17",
+    muted: "#6f6758",
+    soft: "#fbf4df",
+    markBg: "#fef3c7",
+    markText: "#201d17",
+    quoteBg: "#f8f6ef",
+    quoteText: "#3f3524",
+    quoteBorder: "#b7791f",
+    insightBg: "#fbf7ed",
+    insightText: "#5f3b00",
+    insightBorder: "#d19a25",
+  },
 };
 
 const allowedStyleProperties = new Set([
@@ -86,12 +150,14 @@ const blockTags = new Set([
 
 let lastOutputHtml = "";
 let currentFormatMode = "source";
+let currentWechatStyle = "tech";
 
 const sampleHtml = `
   <h1 style="font-size: 30px; line-height: 1.35; color: #172b4d; font-weight: 800;">飞书原文格式自适应转换</h1>
   <p style="font-size: 16px; line-height: 1.95; color: #1f2329;">这次工具可以一键改成公众号更适合阅读的样子，同时识别飞书里标过的重点。</p>
   <p style="font-size: 21px; color: #245bdb; font-weight: 800;">1、自动识别标题和重点句</p>
   <p style="line-height: 1.95;">短标题、编号标题会变成更清楚的标题。飞书里的<strong style="color: #d83931;">加粗重点</strong>、<span style="background-color: #fff59d;">黄色高亮句子</span>会被保留下来。</p>
+  <p style="line-height: 1.95;">个人理解：真正有用的工具不是替你决定风格，而是把你在飞书里已经标出的层级，转成公众号里更稳定的表达。</p>
   <blockquote style="background-color: #f2f5ff; border-left: 4px solid #245bdb; padding: 12px 16px; color: #334155;">核心原则：正文更耐读，重点更醒目，复制到公众号后格式更稳定。</blockquote>
   <ul style="line-height: 1.9;">
     <li><strong style="color: #d83931;">复制飞书正文</strong>，粘贴到左侧。</li>
@@ -342,6 +408,12 @@ function transformNode(node, profile, inline = false, inheritedStyle = {}) {
   const ownStyle = styleFromNode(node);
   const sourceStyle = profile.mode === "source" ? mergeStyles(inheritedStyle, ownStyle) : ownStyle;
   const childInheritedStyle = profile.mode === "source" ? mergeStyles(inheritedStyle, textInheritedStyle(ownStyle)) : {};
+
+  if (["div", "section", "article", "main", "figure"].includes(tag) && containsBlockElement(node)) {
+    const content = blockChildren(node, profile, childInheritedStyle);
+    return Object.keys(sourceStyle).length ? `<section style="${styleText(blockContainerStyle(sourceStyle, profile))}">${content}</section>` : content;
+  }
+
   const children = inlineChildren(node, profile, childInheritedStyle).trim();
 
   if (!children && !["br", "img", "hr"].includes(tag)) return "";
@@ -416,19 +488,23 @@ function transformNode(node, profile, inline = false, inheritedStyle = {}) {
     if (profile.mode === "smart") {
       const promoted = smartPromotedHeading(node, children, ownStyle, profile);
       if (promoted) return promoted;
+      if (isInsightBlockText(node.textContent)) {
+        profile.seenContent = true;
+        return insightHtml(children, profile);
+      }
     }
     profile.seenContent = true;
     return paragraphHtml(children, sourceStyle, profile);
   }
 
   if (["div", "section", "article", "main", "figure"].includes(tag)) {
-    if (containsBlockElement(node)) {
-      const content = blockChildren(node, profile, childInheritedStyle);
-      return Object.keys(sourceStyle).length ? `<section style="${styleText(blockContainerStyle(sourceStyle, profile))}">${content}</section>` : content;
-    }
     if (profile.mode === "smart") {
       const promoted = smartPromotedHeading(node, children, ownStyle, profile);
       if (promoted) return promoted;
+      if (isInsightBlockText(node.textContent)) {
+        profile.seenContent = true;
+        return insightHtml(children, profile);
+      }
     }
     profile.seenContent = true;
     return paragraphHtml(children, sourceStyle, profile);
@@ -467,12 +543,17 @@ function isMarkedStyle(style, profile) {
   );
 }
 
+function isInsightBlockText(text) {
+  const normalized = normalizeText(text).trim().replace(/\s+/g, "");
+  return /^(个人理解|我的理解|个人看法|我的看法|我的判断|一点理解|我认为|我觉得|小结|总结)[：:]/.test(normalized);
+}
+
 function smartInlineStyle(sourceStyle, profile, strong = false) {
   const marked = isMarkedStyle(sourceStyle, profile) || strong;
   if (isSoftBackground(sourceStyle["background-color"])) {
     return {
-      color: profile.ink,
-      "background-color": "#fff59d",
+      color: profile.markText,
+      "background-color": profile.markBg,
       padding: "1px 4px",
       "border-radius": "3px",
       "font-weight": "700",
@@ -480,7 +561,7 @@ function smartInlineStyle(sourceStyle, profile, strong = false) {
   }
   if (marked) {
     return {
-      color: sourceStyle.color && !isNeutralColor(sourceStyle.color) ? sourceStyle.color : profile.accent,
+      color: profile.accent,
       "font-weight": "700",
     };
   }
@@ -563,6 +644,22 @@ function blockContainerStyle(sourceStyle, profile) {
   );
 }
 
+function insightHtml(content, profile) {
+  profile.insights += 1;
+  return `<p style="${styleText({
+    margin: "20px 0",
+    padding: "13px 15px",
+    color: profile.insightText,
+    "background-color": profile.insightBg,
+    "border-left": `4px solid ${profile.insightBorder}`,
+    "border-radius": "0 6px 6px 0",
+    "font-size": "16px",
+    "line-height": "1.9",
+    "font-weight": "600",
+    "letter-spacing": "0",
+  })}">${content}</p>`;
+}
+
 function paragraphHtml(content, sourceStyle, profile) {
   if (profile.mode === "smart") {
     if (isSoftBackground(sourceStyle["background-color"])) {
@@ -570,9 +667,9 @@ function paragraphHtml(content, sourceStyle, profile) {
       return `<p style="${styleText({
         margin: "18px 0",
         padding: "12px 14px",
-        color: profile.ink,
-        "background-color": "#fff8cc",
-        "border-left": "4px solid #f2c94c",
+        color: profile.markText,
+        "background-color": profile.markBg,
+        "border-left": `4px solid ${profile.insightBorder}`,
         "font-size": "16px",
         "line-height": "1.9",
         "letter-spacing": "0",
@@ -656,9 +753,9 @@ function quoteHtml(content, sourceStyle, profile) {
     return `<blockquote style="${styleText({
       margin: "20px 0",
       padding: "14px 16px",
-      color: "#394150",
-      "background-color": "#f6f8fb",
-      "border-left": `4px solid ${profile.accent}`,
+      color: profile.quoteText,
+      "background-color": profile.quoteBg,
+      "border-left": `4px solid ${profile.quoteBorder}`,
       "border-radius": "0 6px 6px 0",
       "font-size": "15px",
       "line-height": "1.85",
@@ -873,7 +970,11 @@ function inlineMarkdown(text) {
 }
 
 function analyzeDocument(root) {
-  const profile = { ...baseDocumentStyle };
+  const selectedWechatPreset = wechatStylePresets[currentWechatStyle] || wechatStylePresets.tech;
+  const profile =
+    currentFormatMode === "smart"
+      ? { ...baseDocumentStyle, ...selectedWechatPreset, styleId: currentWechatStyle, styleLabel: selectedWechatPreset.label }
+      : { ...baseDocumentStyle, styleId: currentWechatStyle, styleLabel: selectedWechatPreset.label };
   const colorCounts = new Map();
   const backgroundCounts = new Map();
   const fontSizes = new Set();
@@ -900,8 +1001,10 @@ function analyzeDocument(root) {
     [...root.querySelectorAll("h1")]
       .map((node) => styleFromNode(node).color)
       .find((color) => color && !isNeutralColor(color));
-  profile.accent = headingAccent || firstAccent || profile.accent;
-  profile.soft = [...backgroundCounts.keys()].find((color) => color !== profile.paper) || profile.soft;
+  if (currentFormatMode !== "smart") {
+    profile.accent = headingAccent || firstAccent || profile.accent;
+    profile.soft = [...backgroundCounts.keys()].find((color) => color !== profile.paper) || profile.soft;
+  }
 
   return {
     ...profile,
@@ -914,6 +1017,7 @@ function analyzeDocument(root) {
     links: root.querySelectorAll("a[href]").length,
     mode: currentFormatMode,
     keyMarks: 0,
+    insights: 0,
     autoHeadings: 0,
     seenContent: false,
     titleAssigned: !!root.querySelector("h1"),
@@ -988,8 +1092,8 @@ function renderReport(profile) {
   formatReport.innerHTML = `
     <div class="report-section">
       <span class="report-label">排版模式</span>
-      <strong>${profile.mode === "smart" ? "公众号一键排版" : "保持飞书原格式"}</strong>
-      <p>${profile.mode === "smart" ? "自动优化标题、正文行距和重点句。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
+      <strong>${profile.mode === "smart" ? `公众号一键排版 · ${esc(profile.styleLabel)}` : "保持飞书原格式"}</strong>
+      <p>${profile.mode === "smart" ? "自动优化标题、正文行距、重点句、个人理解和引用块。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
     </div>
     <div class="report-section">
       <span class="report-label">颜色</span>
@@ -1006,6 +1110,7 @@ function renderReport(profile) {
     <div class="report-section compact-metrics">
       <span>标题 ${profile.autoHeadings}</span>
       <span>重点 ${profile.keyMarks}</span>
+      <span>理解 ${profile.insights}</span>
       <span>图片 ${profile.images}</span>
       <span>表格 ${profile.tables}</span>
       <span>链接 ${profile.links}</span>
@@ -1177,6 +1282,23 @@ modeButtons.forEach((button) => {
       item.classList.toggle("active", active);
       item.setAttribute("aria-selected", String(active));
     });
+    convert();
+  });
+});
+styleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentWechatStyle = button.dataset.wechatStyle;
+    styleButtons.forEach((item) => {
+      item.classList.toggle("active", item.dataset.wechatStyle === currentWechatStyle);
+    });
+    if (currentFormatMode !== "smart") {
+      currentFormatMode = "smart";
+      modeButtons.forEach((item) => {
+        const active = item.dataset.formatMode === currentFormatMode;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-selected", String(active));
+      });
+    }
     convert();
   });
 });
