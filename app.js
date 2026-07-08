@@ -612,15 +612,27 @@ function blockContainerStyle(sourceStyle, profile) {
     {
       margin: "0 auto",
       "box-sizing": "border-box",
-      color: profile.ink,
+      color: baseDocumentStyle.ink,
       "font-family": profile.font,
     },
     containerStyle,
   );
 }
 
+function defaultTextContent(content) {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = content;
+  wrapper.querySelectorAll("*").forEach((node) => {
+    const style = parseStyle(node.getAttribute("style") || "");
+    style.color = baseDocumentStyle.ink;
+    node.setAttribute("style", styleText(style));
+  });
+  return wrapper.innerHTML;
+}
+
 function insightHtml(content, profile) {
   profile.insights += 1;
+  const body = defaultTextContent(content);
   return `<p style="${styleText({
     margin: "20px 0",
     padding: "13px 15px",
@@ -633,11 +645,12 @@ function insightHtml(content, profile) {
     "line-height": "1.85",
     "font-weight": "600",
     "letter-spacing": "0",
-  })}">${content}</p>`;
+  })}">${body}</p>`;
 }
 
 function paragraphHtml(content, sourceStyle, profile) {
   if (profile.mode === "smart") {
+    const body = defaultTextContent(content);
     if (isSoftBackground(sourceStyle["background-color"])) {
       profile.keyMarks += 1;
       return `<p style="${styleText({
@@ -648,7 +661,7 @@ function paragraphHtml(content, sourceStyle, profile) {
         "font-weight": "700",
         "letter-spacing": "0",
         "text-align": "left",
-      })}">${content}</p>`;
+      })}">${body}</p>`;
     }
 
     return `<p style="${styleText({
@@ -658,7 +671,7 @@ function paragraphHtml(content, sourceStyle, profile) {
       "line-height": "1.95",
       "letter-spacing": "0",
       "text-align": "left",
-    })}">${content}</p>`;
+    })}">${body}</p>`;
   }
 
   return `<p style="${styleText(
@@ -725,6 +738,7 @@ function headingHtml(tag, content, sourceStyle, profile) {
 
 function quoteHtml(content, sourceStyle, profile) {
   if (profile.mode === "smart") {
+    const body = defaultTextContent(content);
     return `<blockquote style="${styleText({
       margin: "20px 0",
       padding: "14px 16px",
@@ -736,7 +750,7 @@ function quoteHtml(content, sourceStyle, profile) {
       "font-size": "15px",
       "line-height": "1.85",
       "font-weight": "400",
-    })}">${content}</blockquote>`;
+    })}">${body}</blockquote>`;
   }
 
   return `<blockquote style="${styleText(
@@ -772,7 +786,7 @@ function listHtml(node, tag, sourceStyle, profile, inheritedStyle = {}) {
 
 function listItemHtml(content, sourceStyle, profile) {
   if (profile.mode === "smart") {
-    return `<li style="${styleText({ margin: "7px 0", padding: "0 0 0 2px", color: profile.ink })}">${content}</li>`;
+    return `<li style="${styleText({ margin: "7px 0", padding: "0 0 0 2px", color: baseDocumentStyle.ink })}">${defaultTextContent(content)}</li>`;
   }
   return `<li style="${styleText(mergeStyles({ margin: "6px 0", padding: "0 0 0 2px", color: profile.ink }, sourceStyle))}">${content}</li>`;
 }
