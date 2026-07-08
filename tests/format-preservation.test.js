@@ -177,7 +177,7 @@ const runnerHtml = `<!doctype html>
               smartOutput.includes("background-color:#f6f7f8") &&
                 smartOutput.includes("00 的感受") &&
                 smartOutput.includes("border-left:4px solid #f43f5e") &&
-                smartOutput.includes("color:#24201f") &&
+                smartOutput.includes("color:#1f2329") &&
                 smartOutput.includes("font-size:15px") &&
                 smartOutput.includes("font-weight:600"),
               "00 的感受段落应识别为浅灰底、主题竖线、默认文字色的个人感受块",
@@ -186,7 +186,7 @@ const runnerHtml = `<!doctype html>
             assert(
               smartOutput.includes("background-color:#f6f7f8") &&
                 smartOutput.includes("border-left:3px solid #d0d5dd") &&
-                smartOutput.includes("color:#24201f") &&
+                smartOutput.includes("color:#1f2329") &&
                 smartOutput.includes("font-weight:400"),
               "引用块应使用浅灰底、灰色细竖线、默认文字色和正常字重",
               smartOutput,

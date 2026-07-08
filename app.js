@@ -624,7 +624,7 @@ function insightHtml(content, profile) {
   return `<p style="${styleText({
     margin: "20px 0",
     padding: "13px 15px",
-    color: profile.ink,
+    color: baseDocumentStyle.ink,
     "background-color": profile.insightBg,
     "border-left": `4px solid ${profile.insightBorder}`,
     "border-radius": "0 6px 6px 0",
@@ -642,7 +642,7 @@ function paragraphHtml(content, sourceStyle, profile) {
       profile.keyMarks += 1;
       return `<p style="${styleText({
         margin: "0 0 18px",
-        color: profile.ink,
+        color: baseDocumentStyle.ink,
         "font-size": "16px",
         "line-height": "1.95",
         "font-weight": "700",
@@ -653,7 +653,7 @@ function paragraphHtml(content, sourceStyle, profile) {
 
     return `<p style="${styleText({
       margin: "0 0 18px",
-      color: profile.ink,
+      color: baseDocumentStyle.ink,
       "font-size": "16px",
       "line-height": "1.95",
       "letter-spacing": "0",
@@ -728,7 +728,7 @@ function quoteHtml(content, sourceStyle, profile) {
     return `<blockquote style="${styleText({
       margin: "20px 0",
       padding: "14px 16px",
-      color: profile.ink,
+      color: baseDocumentStyle.ink,
       "background-color": profile.quoteBg,
       "border-left": `3px solid ${profile.quoteBorder}`,
       "border-radius": "0 6px 6px 0",
