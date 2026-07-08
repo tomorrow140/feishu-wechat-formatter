@@ -25,8 +25,6 @@ const wechatStylePresets = {
     ink: "#20242a",
     muted: "#64748b",
     soft: "#edf4ff",
-    markBg: "#fff4bf",
-    markText: "#20242a",
     quoteBg: "#f5f8ff",
     quoteText: "#334155",
     quoteBorder: "#245bdb",
@@ -40,8 +38,6 @@ const wechatStylePresets = {
     ink: "#1f2a27",
     muted: "#5f716c",
     soft: "#ecfdf5",
-    markBg: "#fff7cc",
-    markText: "#1f2a27",
     quoteBg: "#f3faf7",
     quoteText: "#24433d",
     quoteBorder: "#14b8a6",
@@ -55,8 +51,6 @@ const wechatStylePresets = {
     ink: "#24201f",
     muted: "#746865",
     soft: "#fff1ed",
-    markBg: "#ffe8cc",
-    markText: "#24201f",
     quoteBg: "#fff7ed",
     quoteText: "#4a3128",
     quoteBorder: "#dc6803",
@@ -70,8 +64,6 @@ const wechatStylePresets = {
     ink: "#201d17",
     muted: "#6f6758",
     soft: "#fbf4df",
-    markBg: "#fef3c7",
-    markText: "#201d17",
     quoteBg: "#f8f6ef",
     quoteText: "#3f3524",
     quoteBorder: "#b7791f",
@@ -550,18 +542,8 @@ function isInsightBlockText(text) {
 
 function smartInlineStyle(sourceStyle, profile, strong = false) {
   const marked = isMarkedStyle(sourceStyle, profile) || strong;
-  if (isSoftBackground(sourceStyle["background-color"])) {
-    return {
-      color: profile.markText,
-      "background-color": profile.markBg,
-      padding: "1px 4px",
-      "border-radius": "3px",
-      "font-weight": "700",
-    };
-  }
   if (marked) {
     return {
-      color: profile.accent,
       "font-weight": "700",
     };
   }
@@ -666,14 +648,13 @@ function paragraphHtml(content, sourceStyle, profile) {
     if (isSoftBackground(sourceStyle["background-color"])) {
       profile.keyMarks += 1;
       return `<p style="${styleText({
-        margin: "18px 0",
-        padding: "12px 14px",
-        color: profile.markText,
-        "background-color": profile.markBg,
-        "border-left": `4px solid ${profile.insightBorder}`,
+        margin: "0 0 18px",
+        color: profile.ink,
         "font-size": "16px",
-        "line-height": "1.9",
+        "line-height": "1.95",
+        "font-weight": "700",
         "letter-spacing": "0",
+        "text-align": "left",
       })}">${content}</p>`;
     }
 
@@ -1094,7 +1075,7 @@ function renderReport(profile) {
     <div class="report-section">
       <span class="report-label">排版模式</span>
       <strong>${profile.mode === "smart" ? `公众号一键排版 · ${esc(profile.styleLabel)}` : "保持飞书原格式"}</strong>
-      <p>${profile.mode === "smart" ? "自动优化标题、正文行距、重点句、个人理解和引用块。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
+      <p>${profile.mode === "smart" ? "自动优化标题、正文行距、重点加粗、个人理解和引用块。" : `已识别 ${profile.styledNodeCount} 个带样式节点，并补齐继承样式。`}</p>
     </div>
     <div class="report-section">
       <span class="report-label">颜色</span>

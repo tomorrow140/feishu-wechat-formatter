@@ -171,7 +171,8 @@ const runnerHtml = `<!doctype html>
             const numberedHeadingCount = (smartOutput.match(/border-left:5px solid #b42318/g) || []).length;
             assert(numberedHeadingCount >= 2, "同级编号标题都应使用 H2 竖线样式", smartOutput);
             assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
-            assert(smartOutput.includes("background-color:#ffe8cc") && smartOutput.includes("黄色高亮"), "公众号排版应按当前风格处理重点高亮", smartOutput);
+            assert(smartOutput.includes("黄色高亮") && smartOutput.includes("font-weight:700"), "公众号排版应把正文重点统一处理为加粗", smartOutput);
+            assert(!smartOutput.includes("background-color:#ffe8cc"), "公众号排版中的正文重点不应再使用高亮底色", smartOutput);
             assert(smartOutput.includes("background-color:#fff1f2") && smartOutput.includes("个人理解"), "个人理解段落应识别为单独样式块", smartOutput);
             assert(smartOutput.includes("background-color:#fff7ed") && smartOutput.includes("border-left:4px solid #dc6803"), "引用块应使用当前风格配色", smartOutput);
             assert(smartReport.includes("公众号一键排版 · 人物红") && smartReport.includes("理解 1"), "格式报告应显示当前风格和理解块数量", smartReport);

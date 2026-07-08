@@ -92,6 +92,9 @@
 - 已更新脚本版本参数为 `app.js?v=20260708-numbered-heading`，避免线上继续加载旧逻辑。
 - 已提交并推送编号标题一致性修复：`d9f8536 fix: keep numbered headings consistent`。
 - 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-numbered-heading`，线上脚本已包含 `!numbered` 排除逻辑。
+- 已按用户要求将“公众号排版”中的正文重点统一改为加粗：飞书加粗、标色、背景高亮都会输出为加粗，不再给正文重点额外加底色、左边框或主题色。
+- 已保留个人理解块和引用块的独立模块样式；它们不属于普通正文重点句。
+- 已更新 README、格式识别说明和回归测试，脚本版本参数改为 `app.js?v=20260708-bold-marks`。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -118,6 +121,7 @@
 - 编号标题策略：`1、`、`2、`、`一、` 等编号标题只作为章节标题处理，不自动升为文章主标题，避免同级编号标题出现横线/竖线两套样式。
 - 子元素样式策略：智能标题识别时，子 `span` / `strong` / `b` 的颜色、字号、加粗优先于父块普通样式。
 - 公众号风格策略：新增的风格是原创预设，只参考国内公众号常见内容气质，不照搬具体账号样式；“保持原格式”继续按飞书原文输出，“公众号排版”才使用风格预设。
+- 公众号重点策略：正文重点统一用 `font-weight:700` 表达，不再使用背景色、左边框或主题色，降低公众号排版的视觉噪音。
 - 个人理解策略：优先识别带明确标签的段落，如“个人理解：”“我的看法：”“我认为：”，避免把普通正文中过多主观句误判成理解块。
 
 尚未完成事项
@@ -127,10 +131,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 用真实飞书文章打开线上工具，确认 `1、...` 和 `2、...` 这类同级编号标题在“公众号排版”中都显示为同一种章节标题样式；再去微信公众号后台做最终粘贴验收。
+- 提交并推送正文重点统一加粗改动，等待 GitHub Pages 构建完成并做线上脚本版本验证。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前无未提交改动。
+- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`README.md`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
@@ -222,3 +226,5 @@
 - 已验证 GitHub Pages 已变为 `built`。
 - 已验证线上首页引用 `app.js?v=20260708-numbered-heading`。
 - 已验证线上 `app.js` 包含 `const firstTitle = !numbered` 和 `const largeTitle = !numbered` 逻辑。
+- 已验证正文重点统一加粗改动：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过。
+- 已验证正文重点统一加粗回归：`node tests/format-preservation.test.js` 通过，覆盖公众号排版中高亮/重点内容变为加粗，且不再输出正文重点高亮底色。
