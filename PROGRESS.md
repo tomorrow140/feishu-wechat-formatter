@@ -128,6 +128,9 @@
 - 已通过语法、空白和格式保真回归验证，覆盖大字号段落形式的“阶段 1”按 H2 输出。
 - 已将修复提交到本地 `main`：`c7941f8 fix: keep stage headings below article title`。
 - 推送时 GitHub 拒绝了已失效的 HTTPS 令牌；`gh auth login --web` 设备授权未在本轮完成，已停止等待中的登录进程。
+- 已通过系统现有代理 `127.0.0.1:7897` 重新完成 GitHub 设备授权，`gh auth status` 确认账号 `tomorrow140` 登录有效。
+- 已将阶段标题修复和进度记录推送到 `origin/main`，GitHub Pages 构建状态为 `built`。
+- 已验证线上首页引用 `app.js?v=20260717-section-heading-level`，线上脚本包含 `isSectionLikeHeadingText`、阶段标题 H1 降级和 H2 输出逻辑。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -165,10 +168,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 运行 `gh auth login -h github.com --web --git-protocol https` 完成 GitHub 重新授权，然后执行 `git push origin main`，再验证 GitHub Pages 线上版本。
+- 用用户提供的真实飞书文档再粘贴一次，确认“阶段一 / 阶段二 / 阶段三”在公众号排版预览中均为二级竖线标题。
 
 当前是否有未提交改动
-- 阶段标题修复代码已提交，本地 `main` 比 `origin/main` 领先 1 个提交；本次进度记录将另行提交。
+- 阶段标题修复已提交并推送；本次只有 `PROGRESS.md` 和 `TODO.md` 的发布收尾记录待提交。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
