@@ -139,6 +139,8 @@
 - 已确认 GitHub Pages 构建为 `built`，线上首页引用 `app.js?v=20260722-compact-stage-headings`，线上脚本包含阶段标题 `20px / 700 / 4px 竖线` 预设。
 - 根据用户进一步反馈，阶段 H2 将改为更简单的纯文字样式：正文黑 `#1f2329`、19px、700 字重，不使用主题色、竖线或左侧缩进。
 - 已通过语法、空白和格式回归测试，自动验证阶段标题保持 H2，使用 `#1f2329 / 19px / 700`，且不再输出主题色竖线。
+- 已提交并推送纯文字阶段标题修改：`04bf955 fix: simplify stage heading styles`。
+- 已确认 GitHub Pages 构建为 `built`，线上首页引用 `app.js?v=20260722-plain-stage-headings`，线上阶段标题预设为正文黑、19px、700 字重且无竖线。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -176,10 +178,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送纯文字阶段标题修改，等待 GitHub Pages 构建后验证线上版本和样式逻辑。
+- 刷新线上工具并重新粘贴真实飞书文档，确认阶段 1/2/3 的纯文字层级符合预期。
 
 当前是否有未提交改动
-- 当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- 纯文字阶段标题代码已提交并推送；本次只有 `PROGRESS.md` 和 `TODO.md` 的发布收尾记录待提交。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
