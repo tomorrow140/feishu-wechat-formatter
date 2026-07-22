@@ -126,6 +126,8 @@
 - 已更新脚本版本参数为 `app.js?v=20260717-section-heading-level`，用于绕过线上旧缓存。
 - 已收紧阶段标题匹配：只识别“阶段一 / 阶段 1 / 第一阶段”等带明确序号的结构标题，避免误伤“阶段性思考”等普通标题。
 - 已通过语法、空白和格式保真回归验证，覆盖大字号段落形式的“阶段 1”按 H2 输出。
+- 已将修复提交到本地 `main`：`c7941f8 fix: keep stage headings below article title`。
+- 推送时 GitHub 拒绝了已失效的 HTTPS 令牌；`gh auth login --web` 设备授权未在本轮完成，已停止等待中的登录进程。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -163,10 +165,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送阶段标题层级修复，再验证 GitHub Pages 线上版本。
+- 运行 `gh auth login -h github.com --web --git-protocol https` 完成 GitHub 重新授权，然后执行 `git push origin main`，再验证 GitHub Pages 线上版本。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- 阶段标题修复代码已提交，本地 `main` 比 `origin/main` 领先 1 个提交；本次进度记录将另行提交。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
