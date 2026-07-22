@@ -135,6 +135,8 @@
 - 已为带序号的阶段类标题增加独立紧凑 H2 预设：`20px / 700`、4px 主题色竖线和更小的上下间距，普通编号章节标题仍使用原有 24px H2。
 - 已通过语法、空白和格式回归测试，自动验证普通章节 H2 仍为 24px/5px 竖线，阶段 H2 为 20px/700/4px 竖线。
 - 已启动本地预览 `http://127.0.0.1:4173/`，脚本版本参数为 `app.js?v=20260722-compact-stage-headings`。
+- 已提交并推送紧凑阶段标题修复：`5389dab fix: compact stage heading styles`。
+- 已确认 GitHub Pages 构建为 `built`，线上首页引用 `app.js?v=20260722-compact-stage-headings`，线上脚本包含阶段标题 `20px / 700 / 4px 竖线` 预设。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -172,10 +174,10 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 提交并推送紧凑阶段标题修复，等待 GitHub Pages 构建后验证线上版本和样式逻辑。
+- 刷新线上工具并重新粘贴真实飞书文档，确认阶段 1/2/3 的视觉层级符合预期。
 
 当前是否有未提交改动
-- 当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
+- 紧凑阶段标题代码已提交并推送；本次只有 `PROGRESS.md` 和 `TODO.md` 的发布收尾记录待提交。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
