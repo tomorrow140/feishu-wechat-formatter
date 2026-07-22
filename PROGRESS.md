@@ -120,6 +120,12 @@
 - 已更新脚本版本参数为 `app.js?v=20260708-force-smart-body-color`，用于绕过线上旧缓存。
 - 已提交并推送内部文字色修复：`e799d49 fix: force smart body text color`。
 - 已确认 GitHub Pages 构建完成，线上页面已引用 `app.js?v=20260708-force-smart-body-color`，线上脚本包含 `defaultTextContent` 内部文字色修复。
+- 已定位“阶段一/阶段二/阶段三”被误升为一级标题的原因：智能排版里 `largeTitle` 规则只看“短 + 大字号”，没有限制必须出现在文章开头。
+- 已调整标题识别规则：只有文章开头的短标题/大字号标题可升为 H1；“阶段/步骤/部分/环节/模块/小节”等结构型标题即使加粗或大字号，也按 H2 输出。
+- 已补充保护：如果飞书直接复制出 `h1` 形式的“阶段类标题”，公众号排版也会降为 H2 样式。
+- 已更新脚本版本参数为 `app.js?v=20260717-section-heading-level`，用于绕过线上旧缓存。
+- 已收紧阶段标题匹配：只识别“阶段一 / 阶段 1 / 第一阶段”等带明确序号的结构标题，避免误伤“阶段性思考”等普通标题。
+- 已通过语法、空白和格式保真回归验证，覆盖大字号段落形式的“阶段 1”按 H2 输出。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -157,14 +163,15 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 在线上工具用真实飞书文章确认个人感受、引用和普通正文不再被主题色染蓝；再去微信公众号后台做最终粘贴验收。
+- 提交并推送阶段标题层级修复，再验证 GitHub Pages 线上版本。
 
 当前是否有未提交改动
-- `feishu-wechat-formatter/` 内当前无未提交改动。
+- `feishu-wechat-formatter/` 内当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
 - 语法检查：在 `feishu-wechat-formatter` 目录运行 `node --check app.js`。
+- 已验证阶段标题层级回归：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过；`node tests/format-preservation.test.js` 通过，覆盖大字号段落和源 H1 两种“阶段标题”均输出为 H2 竖线样式。
 - 本地预览：在 `feishu-wechat-formatter` 目录运行 `python3 -m http.server 4173`，打开 `http://127.0.0.1:4173/`。
 - 已验证：运行文件中不再包含固定主题词或主题切换代码。
 - 已验证：载入示例后，“格式识别”面板显示跟随当前飞书文档，右侧预览保留示例原文的蓝色、字号、边框和引用背景。

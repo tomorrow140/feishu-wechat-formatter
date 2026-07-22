@@ -62,6 +62,10 @@ const runnerHtml = `<!doctype html>
           <p>00 的感受：这类段落应该被公众号排版识别成单独的个人感受块，<span style="color: #245bdb;">内部蓝色也要回到正文色</span>。</p>
           <blockquote class="quote">引用块需要保留左边框、背景和文字颜色，<span style="color: #245bdb;">引用内部蓝色也要回到正文色</span>。</blockquote>
           <p class="center"><u>下划线文字</u>、<s>删除线文字</s>、<code style="color: #111827;">inline code</code>、<a href="https://example.com/demo">安全链接</a></p>
+          <p style="font-size: 28px; font-weight: 800;">阶段 1：级联式语音系统</p>
+          <p>阶段说明正文不应该影响阶段标题层级。</p>
+          <h1>阶段二：轮次式语音模型</h1>
+          <p>第二阶段的说明正文。</p>
           <img src="https://example.com/feishu-image.png" alt="飞书图片" style="width: 320px; border-radius: 6px;">
           <img data-src="https://example.com/lazy-feishu-image.png" alt="懒加载图片" width="280" height="160" style="border-radius: 8px;">
           <img src="https://example.com/right-image.png" alt="右对齐图片" style="width: 180px; text-align: right;">
@@ -179,8 +183,10 @@ const runnerHtml = `<!doctype html>
             assert(doc.querySelector('[data-format-mode="smart"]').classList.contains("active"), "点击公众号风格后应自动切到公众号排版");
             assert(doc.querySelector('[data-wechat-style="editorial"]').classList.contains("active"), "人物红风格按钮应进入选中态");
             const numberedHeadingCount = (smartOutput.match(/border-left:5px solid #b42318/g) || []).length;
-            assert(numberedHeadingCount >= 2, "同级编号标题都应使用 H2 竖线样式", smartOutput);
+            assert(numberedHeadingCount >= 4, "同级编号标题和阶段标题都应使用 H2 竖线样式", smartOutput);
             assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
+            assert(smartOutput.includes("<h2") && smartOutput.includes("阶段 1：级联式语音系统"), "阶段类标题应按 H2 输出", smartOutput);
+            assert(!smartOutput.includes("<h1") && smartOutput.includes("阶段二：轮次式语音模型"), "飞书 H1 形式的阶段标题也应降为 H2", smartOutput);
             assert(smartOutput.includes("黄色高亮") && smartOutput.includes("font-weight:700"), "公众号排版应把正文重点统一处理为加粗", smartOutput);
             assert(!smartOutput.includes("background-color:#ffe8cc"), "公众号排版中的正文重点不应再使用高亮底色", smartOutput);
             assert(

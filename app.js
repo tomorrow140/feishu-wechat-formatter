@@ -532,6 +532,11 @@ function isInsightBlockText(text) {
   return /^([A-Za-z0-9\u4e00-\u9fa5_]{1,12}的感受|[A-Za-z0-9\u4e00-\u9fa5_]{1,12}感受|个人理解|我的理解|个人看法|我的看法|我的判断|一点理解|我认为|我觉得|小结|总结)[：:]/.test(normalized);
 }
 
+function isSectionLikeHeadingText(text) {
+  const normalized = normalizeText(text).trim().replace(/\s+/g, "");
+  return /^((阶段|步骤|部分|环节|模块|小节)[一二三四五六七八九十0-9０-９]+|第[一二三四五六七八九十0-9０-９]+[阶段步部分节章])[：:、.．]?/.test(normalized);
+}
+
 function smartInlineStyle(sourceStyle, profile, strong = false) {
   const marked = isMarkedStyle(sourceStyle, profile) || strong;
   if (marked) {
@@ -555,9 +560,10 @@ function smartPromotedHeading(node, children, sourceStyle, profile) {
   const headingStyle = mergeStyles(sourceStyle, dominantChildTextStyle(node, sourceStyle));
   const shortEnough = text.length <= 58;
   const numbered = /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text);
+  const sectionLike = isSectionLikeHeadingText(text);
   const styledHeading = fontWeightValue(headingStyle) >= 600 || numericPx(headingStyle["font-size"]) >= 19;
-  const firstTitle = !numbered && !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
-  const largeTitle = !numbered && shortEnough && numericPx(headingStyle["font-size"]) >= 24;
+  const firstTitle = !numbered && !sectionLike && !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
+  const largeTitle = !numbered && !sectionLike && !profile.seenContent && shortEnough && numericPx(headingStyle["font-size"]) >= 24;
 
   if (!profile.titleAssigned && (firstTitle || largeTitle)) {
     profile.titleAssigned = true;
@@ -566,7 +572,7 @@ function smartPromotedHeading(node, children, sourceStyle, profile) {
     return headingHtml("h1", children, headingStyle, profile);
   }
 
-  if (shortEnough && (numbered || styledHeading)) {
+  if (shortEnough && (numbered || sectionLike || styledHeading)) {
     profile.seenContent = true;
     profile.autoHeadings += 1;
     return headingHtml("h2", children, headingStyle, profile);
@@ -628,6 +634,12 @@ function defaultTextContent(content) {
     node.setAttribute("style", styleText(style));
   });
   return wrapper.innerHTML;
+}
+
+function textFromHtml(content) {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = content;
+  return normalizeText(wrapper.textContent || "").trim();
 }
 
 function insightHtml(content, profile) {
@@ -692,6 +704,7 @@ function paragraphHtml(content, sourceStyle, profile) {
 function headingHtml(tag, content, sourceStyle, profile) {
   const level = Number(tag.slice(1));
   if (profile.mode === "smart") {
+    const smartLevel = isSectionLikeHeadingText(textFromHtml(content)) ? 2 : Math.min(level, 3);
     const smartDefaults = {
       1: {
         margin: "0 0 26px",
@@ -722,7 +735,7 @@ function headingHtml(tag, content, sourceStyle, profile) {
         "letter-spacing": "0",
       },
     };
-    return `<${tag} style="${styleText(smartDefaults[Math.min(level, 3)])}">${content}</${tag}>`;
+    return `<h${smartLevel} style="${styleText(smartDefaults[smartLevel])}">${content}</h${smartLevel}>`;
   }
 
   const defaults = {
