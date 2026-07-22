@@ -137,6 +137,8 @@
 - 已启动本地预览 `http://127.0.0.1:4173/`，脚本版本参数为 `app.js?v=20260722-compact-stage-headings`。
 - 已提交并推送紧凑阶段标题修复：`5389dab fix: compact stage heading styles`。
 - 已确认 GitHub Pages 构建为 `built`，线上首页引用 `app.js?v=20260722-compact-stage-headings`，线上脚本包含阶段标题 `20px / 700 / 4px 竖线` 预设。
+- 根据用户进一步反馈，阶段 H2 将改为更简单的纯文字样式：正文黑 `#1f2329`、19px、700 字重，不使用主题色、竖线或左侧缩进。
+- 已通过语法、空白和格式回归测试，自动验证阶段标题保持 H2，使用 `#1f2329 / 19px / 700`，且不再输出主题色竖线。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -174,14 +176,15 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 刷新线上工具并重新粘贴真实飞书文档，确认阶段 1/2/3 的视觉层级符合预期。
+- 提交并推送纯文字阶段标题修改，等待 GitHub Pages 构建后验证线上版本和样式逻辑。
 
 当前是否有未提交改动
-- 紧凑阶段标题代码已提交并推送；本次只有 `PROGRESS.md` 和 `TODO.md` 的发布收尾记录待提交。
+- 当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
 - 语法检查：在 `feishu-wechat-formatter` 目录运行 `node --check app.js`。
+- 已验证纯文字阶段标题：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过；`node tests/format-preservation.test.js` 通过。
 - 已验证紧凑阶段标题：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过；`node tests/format-preservation.test.js` 通过。
 - 已验证阶段标题层级回归：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过；`node tests/format-preservation.test.js` 通过，覆盖大字号段落和源 H1 两种“阶段标题”均输出为 H2 竖线样式。
 - 本地预览：在 `feishu-wechat-formatter` 目录运行 `python3 -m http.server 4173`，打开 `http://127.0.0.1:4173/`。

@@ -737,14 +737,12 @@ function headingHtml(tag, content, sourceStyle, profile) {
       },
     };
     const sectionDefaults = {
-      margin: "24px 0 14px",
-      color: profile.accent,
-      "font-size": "20px",
-      "line-height": "1.5",
+      margin: "24px 0 12px",
+      color: baseDocumentStyle.ink,
+      "font-size": "19px",
+      "line-height": "1.55",
       "font-weight": "700",
       "letter-spacing": "0",
-      "border-left": `4px solid ${profile.accent}`,
-      padding: "0 0 0 10px",
     };
     const headingDefaults = sectionLike ? sectionDefaults : smartDefaults[smartLevel];
     return `<h${smartLevel} style="${styleText(headingDefaults)}">${content}</h${smartLevel}>`;

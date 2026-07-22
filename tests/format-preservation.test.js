@@ -185,13 +185,13 @@ const runnerHtml = `<!doctype html>
             const numberedHeadingCount = (smartOutput.match(/border-left:5px solid #b42318/g) || []).length;
             const stageHeadingCount = (smartOutput.match(/border-left:4px solid #b42318/g) || []).length;
             assert(numberedHeadingCount >= 2, "同级编号标题应使用标准 H2 竖线样式", smartOutput);
-            assert(stageHeadingCount >= 2, "阶段标题应使用更紧凑的 H2 竖线样式", smartOutput);
+            assert(stageHeadingCount === 0, "阶段标题不应再使用主题色竖线", smartOutput);
             assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
             assert(smartOutput.includes("<h2") && smartOutput.includes("阶段 1：级联式语音系统"), "阶段类标题应按 H2 输出", smartOutput);
             assert(!smartOutput.includes("<h1") && smartOutput.includes("阶段二：轮次式语音模型"), "飞书 H1 形式的阶段标题也应降为 H2", smartOutput);
             assert(
-              smartOutput.includes("font-size:20px;line-height:1.5;font-weight:700;letter-spacing:0;border-left:4px solid #b42318"),
-              "阶段标题应使用 20px / 700 的紧凑二级标题视觉",
+              smartOutput.includes('<h2 style="margin:24px 0 12px;color:#1f2329;font-size:19px;line-height:1.55;font-weight:700;letter-spacing:0">阶段 1：级联式语音系统</h2>'),
+              "阶段标题应使用正文黑、19px / 700 且无竖线的纯文字 H2 视觉",
               smartOutput,
             );
             assert(smartOutput.includes("黄色高亮") && smartOutput.includes("font-weight:700"), "公众号排版应把正文重点统一处理为加粗", smartOutput);
