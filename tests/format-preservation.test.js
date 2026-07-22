@@ -183,10 +183,17 @@ const runnerHtml = `<!doctype html>
             assert(doc.querySelector('[data-format-mode="smart"]').classList.contains("active"), "点击公众号风格后应自动切到公众号排版");
             assert(doc.querySelector('[data-wechat-style="editorial"]').classList.contains("active"), "人物红风格按钮应进入选中态");
             const numberedHeadingCount = (smartOutput.match(/border-left:5px solid #b42318/g) || []).length;
-            assert(numberedHeadingCount >= 4, "同级编号标题和阶段标题都应使用 H2 竖线样式", smartOutput);
+            const stageHeadingCount = (smartOutput.match(/border-left:4px solid #b42318/g) || []).length;
+            assert(numberedHeadingCount >= 2, "同级编号标题应使用标准 H2 竖线样式", smartOutput);
+            assert(stageHeadingCount >= 2, "阶段标题应使用更紧凑的 H2 竖线样式", smartOutput);
             assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
             assert(smartOutput.includes("<h2") && smartOutput.includes("阶段 1：级联式语音系统"), "阶段类标题应按 H2 输出", smartOutput);
             assert(!smartOutput.includes("<h1") && smartOutput.includes("阶段二：轮次式语音模型"), "飞书 H1 形式的阶段标题也应降为 H2", smartOutput);
+            assert(
+              smartOutput.includes("font-size:20px;line-height:1.5;font-weight:700;letter-spacing:0;border-left:4px solid #b42318"),
+              "阶段标题应使用 20px / 700 的紧凑二级标题视觉",
+              smartOutput,
+            );
             assert(smartOutput.includes("黄色高亮") && smartOutput.includes("font-weight:700"), "公众号排版应把正文重点统一处理为加粗", smartOutput);
             assert(!smartOutput.includes("background-color:#ffe8cc"), "公众号排版中的正文重点不应再使用高亮底色", smartOutput);
             assert(

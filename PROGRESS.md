@@ -131,6 +131,10 @@
 - 已通过系统现有代理 `127.0.0.1:7897` 重新完成 GitHub 设备授权，`gh auth status` 确认账号 `tomorrow140` 登录有效。
 - 已将阶段标题修复和进度记录推送到 `origin/main`，GitHub Pages 构建状态为 `built`。
 - 已验证线上首页引用 `app.js?v=20260717-section-heading-level`，线上脚本包含 `isSectionLikeHeadingText`、阶段标题 H1 降级和 H2 输出逻辑。
+- 根据真实预览截图确认：阶段标题结构已是 H2，但标准 H2 的 `24px / 800` 视觉仍接近一级标题。
+- 已为带序号的阶段类标题增加独立紧凑 H2 预设：`20px / 700`、4px 主题色竖线和更小的上下间距，普通编号章节标题仍使用原有 24px H2。
+- 已通过语法、空白和格式回归测试，自动验证普通章节 H2 仍为 24px/5px 竖线，阶段 H2 为 20px/700/4px 竖线。
+- 已启动本地预览 `http://127.0.0.1:4173/`，脚本版本参数为 `app.js?v=20260722-compact-stage-headings`。
 
 正在处理的文件
 - feishu-wechat-formatter/PROGRESS.md
@@ -168,14 +172,15 @@
 - 浏览器自动化环境中“读取剪贴板”按钮可能被权限拦截；用户手动在输入区 `Cmd+V` 是更稳的主路径。
 
 下一步最小可执行动作
-- 用用户提供的真实飞书文档再粘贴一次，确认“阶段一 / 阶段二 / 阶段三”在公众号排版预览中均为二级竖线标题。
+- 提交并推送紧凑阶段标题修复，等待 GitHub Pages 构建后验证线上版本和样式逻辑。
 
 当前是否有未提交改动
-- 阶段标题修复已提交并推送；本次只有 `PROGRESS.md` 和 `TODO.md` 的发布收尾记录待提交。
+- 当前有未提交改动：`app.js`、`index.html`、`tests/format-preservation.test.js`、`PROGRESS.md`、`TODO.md`。
 - 当前工作区另有此前 AI 资讯追踪相关未提交改动，未由本轮修改。
 
 如何验证当前结果
 - 语法检查：在 `feishu-wechat-formatter` 目录运行 `node --check app.js`。
+- 已验证紧凑阶段标题：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过；`node tests/format-preservation.test.js` 通过。
 - 已验证阶段标题层级回归：`node --check app.js && node --check tests/format-preservation.test.js && git diff --check` 通过；`node tests/format-preservation.test.js` 通过，覆盖大字号段落和源 H1 两种“阶段标题”均输出为 H2 竖线样式。
 - 本地预览：在 `feishu-wechat-formatter` 目录运行 `python3 -m http.server 4173`，打开 `http://127.0.0.1:4173/`。
 - 已验证：运行文件中不再包含固定主题词或主题切换代码。

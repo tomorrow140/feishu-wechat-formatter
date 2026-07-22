@@ -704,7 +704,8 @@ function paragraphHtml(content, sourceStyle, profile) {
 function headingHtml(tag, content, sourceStyle, profile) {
   const level = Number(tag.slice(1));
   if (profile.mode === "smart") {
-    const smartLevel = isSectionLikeHeadingText(textFromHtml(content)) ? 2 : Math.min(level, 3);
+    const sectionLike = isSectionLikeHeadingText(textFromHtml(content));
+    const smartLevel = sectionLike ? 2 : Math.min(level, 3);
     const smartDefaults = {
       1: {
         margin: "0 0 26px",
@@ -735,7 +736,18 @@ function headingHtml(tag, content, sourceStyle, profile) {
         "letter-spacing": "0",
       },
     };
-    return `<h${smartLevel} style="${styleText(smartDefaults[smartLevel])}">${content}</h${smartLevel}>`;
+    const sectionDefaults = {
+      margin: "24px 0 14px",
+      color: profile.accent,
+      "font-size": "20px",
+      "line-height": "1.5",
+      "font-weight": "700",
+      "letter-spacing": "0",
+      "border-left": `4px solid ${profile.accent}`,
+      padding: "0 0 0 10px",
+    };
+    const headingDefaults = sectionLike ? sectionDefaults : smartDefaults[smartLevel];
+    return `<h${smartLevel} style="${styleText(headingDefaults)}">${content}</h${smartLevel}>`;
   }
 
   const defaults = {
