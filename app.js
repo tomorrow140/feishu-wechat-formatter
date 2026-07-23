@@ -176,6 +176,7 @@ function isEmptyHtml(html) {
 function cleanSource(root) {
   inlineEmbeddedStyles(root);
   normalizeImageAttributes(root);
+  normalizeSequenceAttributes(root);
   root.querySelectorAll("script,style,meta,link,iframe,object,embed,form,input,button,textarea,select").forEach((node) => node.remove());
   root.querySelectorAll("*").forEach((node) => {
     [...node.attributes].forEach((attr) => {
@@ -185,6 +186,25 @@ function cleanSource(root) {
       }
     });
   });
+}
+
+function normalizeSequenceAttributes(root) {
+  const candidates = ["seq", "data-seq", "data-list-seq", "data-list-number", "data-number"];
+  root.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach((node) => {
+    const sequence = candidates.map((name) => sequenceValue(node.getAttribute(name))).find(Boolean);
+    if (sequence) node.setAttribute("seq", sequence);
+  });
+}
+
+function sequenceValue(value) {
+  const normalized = String(value || "").replace(/[０-９]/g, (digit) => String(digit.charCodeAt(0) - 65248));
+  if (!/^[1-9]\d*$/.test(normalized)) return "";
+  return String(Number(normalized));
+}
+
+function integerAttributeValue(value) {
+  const normalized = String(value || "").replace(/[０-９]/g, (digit) => String(digit.charCodeAt(0) - 65248));
+  return /^-?\d+$/.test(normalized) ? String(Number(normalized)) : "";
 }
 
 function normalizeImageAttributes(root) {
@@ -458,11 +478,11 @@ function transformNode(node, profile, inline = false, inheritedStyle = {}) {
   if (/^h[1-6]$/.test(tag)) {
     if (tag === "h1") profile.titleAssigned = true;
     profile.seenContent = true;
-    return headingHtml(tag, children, sourceStyle, profile);
+    return headingHtml(tag, headingContentWithSequence(node, children), stableHeadingStyle(node, sourceStyle), profile);
   }
   if (tag === "blockquote") return quoteHtml(children, sourceStyle, profile);
   if (tag === "ul" || tag === "ol") return listHtml(node, tag, sourceStyle, profile, childInheritedStyle);
-  if (tag === "li") return listItemHtml(children, sourceStyle, profile);
+  if (tag === "li") return listItemHtml(node, children, sourceStyle, profile);
   if (tag === "pre") return preHtml(node, sourceStyle, profile);
   if (tag === "img") return imageHtml(node, sourceStyle);
   if (tag === "table") return tableHtml(node, sourceStyle, profile, childInheritedStyle);
@@ -557,9 +577,11 @@ function smartSpanHtml(children, sourceStyle, profile) {
 function smartPromotedHeading(node, children, sourceStyle, profile) {
   const text = normalizeText(node.textContent).trim();
   if (!text) return "";
-  const headingStyle = mergeStyles(sourceStyle, dominantChildTextStyle(node, sourceStyle));
+  const headingStyle = stableHeadingStyle(node, mergeStyles(sourceStyle, dominantChildTextStyle(node, sourceStyle)));
+  const headingContent = headingContentWithSequence(node, children);
+  const sequence = headingSequence(node);
   const shortEnough = text.length <= 58;
-  const numbered = /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text);
+  const numbered = Boolean(sequence) || /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text);
   const sectionLike = isSectionLikeHeadingText(text);
   const styledHeading = fontWeightValue(headingStyle) >= 600 || numericPx(headingStyle["font-size"]) >= 19;
   const firstTitle = !numbered && !sectionLike && !profile.seenContent && shortEnough && !/[。！？!?]$/.test(text);
@@ -569,16 +591,36 @@ function smartPromotedHeading(node, children, sourceStyle, profile) {
     profile.titleAssigned = true;
     profile.seenContent = true;
     profile.autoHeadings += 1;
-    return headingHtml("h1", children, headingStyle, profile);
+    return headingHtml("h1", headingContent, headingStyle, profile);
   }
 
   if (shortEnough && (numbered || sectionLike || styledHeading)) {
     profile.seenContent = true;
     profile.autoHeadings += 1;
-    return headingHtml("h2", children, headingStyle, profile);
+    return headingHtml("h2", headingContent, headingStyle, profile);
   }
 
   return "";
+}
+
+function headingSequence(node) {
+  const supportsSequence = /^h[1-6]$/i.test(node.tagName || "") || ["P", "DIV"].includes(node.tagName);
+  return supportsSequence ? sequenceValue(node.getAttribute("seq")) : "";
+}
+
+function headingContentWithSequence(node, content) {
+  const sequence = headingSequence(node);
+  const text = normalizeText(node.textContent || "").trim();
+  if (!sequence || /^([0-9０-９]+[、.．]|[一二三四五六七八九十]+[、.．])/.test(text)) return content;
+  return `${sequence}. ${content}`;
+}
+
+function stableHeadingStyle(node, sourceStyle) {
+  if (!headingSequence(node)) return sourceStyle;
+  const style = { ...sourceStyle };
+  if (String(style.display || "").toLowerCase() === "list-item") delete style.display;
+  delete style["list-style-type"];
+  return style;
 }
 
 function dominantChildTextStyle(node, fallbackStyle = {}) {
@@ -804,14 +846,28 @@ function listHtml(node, tag, sourceStyle, profile, inheritedStyle = {}) {
     "line-height": profile.mode === "smart" ? "1.9" : "1.9",
     "list-style-type": tag === "ul" ? "disc" : "decimal",
   };
-  return `<${tag} style="${styleText(profile.mode === "smart" ? defaults : mergeStyles(defaults, sourceStyle))}">${items}</${tag}>`;
+  const attributes = listAttributes(node, tag);
+  return `<${tag}${attributes} style="${styleText(profile.mode === "smart" ? defaults : mergeStyles(defaults, sourceStyle))}">${items}</${tag}>`;
 }
 
-function listItemHtml(content, sourceStyle, profile) {
+function listAttributes(node, tag) {
+  if (tag !== "ol") return "";
+  const attributes = [];
+  const start = integerAttributeValue(node.getAttribute("start"));
+  const type = node.getAttribute("type");
+  if (start) attributes.push(`start="${start}"`);
+  if (node.hasAttribute("reversed")) attributes.push("reversed");
+  if (type && /^(1|a|A|i|I)$/.test(type)) attributes.push(`type="${type}"`);
+  return attributes.length ? ` ${attributes.join(" ")}` : "";
+}
+
+function listItemHtml(node, content, sourceStyle, profile) {
+  const value = integerAttributeValue(node.getAttribute("value"));
+  const attributes = value ? ` value="${value}"` : "";
   if (profile.mode === "smart") {
-    return `<li style="${styleText({ margin: "7px 0", padding: "0 0 0 2px", color: baseDocumentStyle.ink })}">${defaultTextContent(content)}</li>`;
+    return `<li${attributes} style="${styleText({ margin: "7px 0", padding: "0 0 0 2px", color: baseDocumentStyle.ink })}">${defaultTextContent(content)}</li>`;
   }
-  return `<li style="${styleText(mergeStyles({ margin: "6px 0", padding: "0 0 0 2px", color: profile.ink }, sourceStyle))}">${content}</li>`;
+  return `<li${attributes} style="${styleText(mergeStyles({ margin: "6px 0", padding: "0 0 0 2px", color: profile.ink }, sourceStyle))}">${content}</li>`;
 }
 
 function preHtml(node, sourceStyle, profile) {

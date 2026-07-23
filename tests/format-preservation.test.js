@@ -62,6 +62,14 @@ const runnerHtml = `<!doctype html>
           <p>00 的感受：这类段落应该被公众号排版识别成单独的个人感受块，<span style="color: #245bdb;">内部蓝色也要回到正文色</span>。</p>
           <blockquote class="quote">引用块需要保留左边框、背景和文字颜色，<span style="color: #245bdb;">引用内部蓝色也要回到正文色</span>。</blockquote>
           <p class="center"><u>下划线文字</u>、<s>删除线文字</s>、<code style="color: #111827;">inline code</code>、<a href="https://example.com/demo">安全链接</a></p>
+          <h2 seq="2" seq-level="auto" style="display: list-item; list-style-type: decimal; font-size: 20px; font-weight: 700;">搭建内容创作工作流，持续 Vibe Coding</h2>
+          <ol start="1">
+            <li value="1">先通过飞书进行撰写</li>
+            <li>写完以后，再转换成公众号富文本</li>
+          </ol>
+          <h2 data-seq="3" style="display: list-item; list-style-type: decimal; font-size: 20px; font-weight: 700;">内容创作倒逼我学习最新资讯和技术</h2>
+          <ol start="2"><li value="3">显式续号列表项</li></ol>
+          <h2 seq="4" seq-level="auto" style="display: list-item; list-style-type: decimal; font-size: 20px; font-weight: 700;">把可复用的能力沉淀成 Skills</h2>
           <p style="font-size: 28px; font-weight: 800;">阶段 1：级联式语音系统</p>
           <p>阶段说明正文不应该影响阶段标题层级。</p>
           <h1>阶段二：轮次式语音模型</h1>
@@ -145,6 +153,11 @@ const runnerHtml = `<!doctype html>
             assert(output.includes("width:280px") && output.includes("height:160px") && output.includes("border-radius:8px"), "图片 width/height 属性和圆角样式应保留", output);
             assert(output.includes('src="https://example.com/right-image.png"') && output.includes('<p style="margin:22px 0;text-align:right">'), "图片对齐方式应保留到外层段落", output);
             assert(output.includes("list-style-type:square") && output.includes("font-size:15px"), "列表样式和列表项字号应保留", output);
+            assert(output.includes(">2. 搭建内容创作工作流，持续 Vibe Coding</h2>"), "飞书 seq=2 标题应保留为 2，而不能重置成 1", output);
+            assert(output.includes(">3. 内容创作倒逼我学习最新资讯和技术</h2>"), "飞书 data-seq=3 标题应在清理 data 属性前保留续号", output);
+            assert(output.includes(">4. 把可复用的能力沉淀成 Skills</h2>"), "飞书 seq=4 标题应继续保留原文序号", output);
+            assert(!output.includes("display:list-item") && !output.includes(">1. 搭建内容创作工作流"), "飞书标题不应继续依赖会重置编号的 list-item 样式", output);
+            assert(output.includes('<ol start="1"') && output.includes('<ol start="2"') && output.includes('<li value="3"'), "章节内从 1 开始的列表及显式续号列表都应保留", output);
             assert(includesAll(output, ["color:#245bdb", "font-size:14px", "background-color:#f2f5ff"]), "表格单元格颜色、字号和背景应保留", output);
             assert(output.includes('colspan="2"') && output.includes('rowspan="2"'), "表格合并单元格的 colspan 和 rowspan 应保留", output);
             assert(/已识别\\s+\\d+\\s+个带样式节点/.test(report), "格式识别报告应该显示样式节点数量", report);
@@ -187,6 +200,10 @@ const runnerHtml = `<!doctype html>
             assert(numberedHeadingCount >= 2, "同级编号标题应使用标准 H2 竖线样式", smartOutput);
             assert(stageHeadingCount === 0, "阶段标题不应再使用主题色竖线", smartOutput);
             assert(!smartOutput.includes("border-bottom:3px solid #b42318"), "编号标题不应被提升为 H1 横线样式", smartOutput);
+            assert(smartOutput.includes(">2. 搭建内容创作工作流，持续 Vibe Coding</h2>"), "公众号排版也应保留飞书标题 seq=2", smartOutput);
+            assert(smartOutput.includes(">3. 内容创作倒逼我学习最新资讯和技术</h2>"), "公众号排版也应保留飞书标题 seq=3", smartOutput);
+            assert(smartOutput.includes(">4. 把可复用的能力沉淀成 Skills</h2>"), "公众号排版也应保留飞书标题 seq=4", smartOutput);
+            assert(smartOutput.includes('<ol start="1"') && smartOutput.includes('<ol start="2"') && smartOutput.includes('<li value="3"'), "公众号排版应保留章节内列表起点及显式续号", smartOutput);
             assert(smartOutput.includes("<h2") && smartOutput.includes("阶段 1：级联式语音系统"), "阶段类标题应按 H2 输出", smartOutput);
             assert(!smartOutput.includes("<h1") && smartOutput.includes("阶段二：轮次式语音模型"), "飞书 H1 形式的阶段标题也应降为 H2", smartOutput);
             assert(
