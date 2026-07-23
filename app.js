@@ -78,6 +78,9 @@ const allowedStyleProperties = new Set([
   "border-width",
   "box-sizing",
   "color",
+  "counter-increment",
+  "counter-reset",
+  "counter-set",
   "display",
   "font",
   "font-family",
@@ -176,7 +179,9 @@ function isEmptyHtml(html) {
 function cleanSource(root) {
   inlineEmbeddedStyles(root);
   normalizeImageAttributes(root);
+  normalizeListAttributes(root);
   normalizeSequenceAttributes(root);
+  stripCounterStyles(root);
   root.querySelectorAll("script,style,meta,link,iframe,object,embed,form,input,button,textarea,select").forEach((node) => node.remove());
   root.querySelectorAll("*").forEach((node) => {
     [...node.attributes].forEach((attr) => {
@@ -188,18 +193,106 @@ function cleanSource(root) {
   });
 }
 
+function normalizeListAttributes(root) {
+  root.querySelectorAll("ol").forEach((node) => {
+    const start =
+      integerAttributeValue(node.getAttribute("start")) ||
+      sequenceFromAttributes(node, ["data-list-start", "data-start", "data-list-index"]) ||
+      sequenceFromCounterStyle(node);
+    if (start) node.setAttribute("start", start);
+  });
+
+  root.querySelectorAll("li").forEach((node) => {
+    const value =
+      integerAttributeValue(node.getAttribute("value")) ||
+      sequenceFromAttributes(node, ["data-list-value", "data-list-index", "data-index", "aria-posinset"]);
+    if (value) node.setAttribute("value", value);
+  });
+}
+
 function normalizeSequenceAttributes(root) {
-  const candidates = ["seq", "data-seq", "data-list-seq", "data-list-number", "data-number"];
+  const candidates = [
+    "seq",
+    "data-seq",
+    "data-list-seq",
+    "data-list-number",
+    "data-list-index",
+    "data-list-start",
+    "data-number",
+    "data-index",
+    "data-order",
+    "data-ordinal",
+    "aria-posinset",
+  ];
   root.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach((node) => {
-    const sequence = candidates.map((name) => sequenceValue(node.getAttribute(name))).find(Boolean);
+    const sequence = sequenceFromAttributes(node, candidates) || sequenceFromCounterStyle(node) || sequenceFromListAncestors(node);
     if (sequence) node.setAttribute("seq", sequence);
   });
 }
 
+function sequenceFromAttributes(node, candidates) {
+  return candidates.map((name) => sequenceValue(node.getAttribute(name))).find(Boolean) || "";
+}
+
+function sequenceFromCounterStyle(node) {
+  const style = parseStyle(node.getAttribute("style") || "");
+  const customPropertySequence = (node.getAttribute("style") || "")
+    .split(";")
+    .map((declaration) => declaration.split(":"))
+    .filter(([property]) => /^--.*(?:seq|number|index|start|order|ordinal)/i.test(String(property || "").trim()))
+    .map(([, value]) => sequenceValue(value))
+    .find(Boolean);
+  if (customPropertySequence) return customPropertySequence;
+
+  const counterSet = counterNumber(style["counter-set"]);
+  if (counterSet !== null) return sequenceValue(String(counterSet));
+
+  const counterReset = counterNumber(style["counter-reset"]);
+  if (counterReset === null) return "";
+  const increment = counterNumber(style["counter-increment"]);
+  return sequenceValue(String(counterReset + (increment === null ? 1 : increment)));
+}
+
+function counterNumber(value) {
+  const matches = [...String(value || "").matchAll(/(?:^|\s)(-?\d+)(?=\s|$)/g)];
+  return matches.length ? Number(matches[matches.length - 1][1]) : null;
+}
+
+function sequenceFromListAncestors(node) {
+  const item = node.closest("li");
+  if (!item) return "";
+
+  const explicitValue = integerAttributeValue(item.getAttribute("value"));
+  if (explicitValue) return sequenceValue(explicitValue);
+
+  const list = item.parentElement;
+  if (!list || tagName(list) !== "ol") return "";
+  const start = Number(integerAttributeValue(list.getAttribute("start")) || "1");
+  const items = [...list.children].filter((child) => tagName(child) === "li");
+  const index = items.indexOf(item);
+  return index >= 0 ? sequenceValue(String(start + index)) : "";
+}
+
+function stripCounterStyles(root) {
+  root.querySelectorAll("[style]").forEach((node) => {
+    const style = parseStyle(node.getAttribute("style") || "");
+    delete style["counter-increment"];
+    delete style["counter-reset"];
+    delete style["counter-set"];
+    if (Object.keys(style).length) {
+      node.setAttribute("style", styleText(style));
+    } else {
+      node.removeAttribute("style");
+    }
+  });
+}
+
 function sequenceValue(value) {
-  const normalized = String(value || "").replace(/[０-９]/g, (digit) => String(digit.charCodeAt(0) - 65248));
-  if (!/^[1-9]\d*$/.test(normalized)) return "";
-  return String(Number(normalized));
+  const normalized = String(value || "")
+    .replace(/[０-９]/g, (digit) => String(digit.charCodeAt(0) - 65248))
+    .trim();
+  const match = normalized.match(/^([1-9]\d*)\s*[、.．]?\s*$/);
+  return match ? String(Number(match[1])) : "";
 }
 
 function integerAttributeValue(value) {
@@ -620,6 +713,9 @@ function stableHeadingStyle(node, sourceStyle) {
   const style = { ...sourceStyle };
   if (String(style.display || "").toLowerCase() === "list-item") delete style.display;
   delete style["list-style-type"];
+  delete style["counter-increment"];
+  delete style["counter-reset"];
+  delete style["counter-set"];
   return style;
 }
 
@@ -864,10 +960,12 @@ function listAttributes(node, tag) {
 function listItemHtml(node, content, sourceStyle, profile) {
   const value = integerAttributeValue(node.getAttribute("value"));
   const attributes = value ? ` value="${value}"` : "";
+  const containsHeading = [...node.children].some((child) => /^h[1-6]$/i.test(child.tagName || ""));
+  const markerStyle = containsHeading ? { "list-style-type": "none" } : {};
   if (profile.mode === "smart") {
-    return `<li${attributes} style="${styleText({ margin: "7px 0", padding: "0 0 0 2px", color: baseDocumentStyle.ink })}">${defaultTextContent(content)}</li>`;
+    return `<li${attributes} style="${styleText(mergeStyles({ margin: "7px 0", padding: "0 0 0 2px", color: baseDocumentStyle.ink }, markerStyle))}">${defaultTextContent(content)}</li>`;
   }
-  return `<li${attributes} style="${styleText(mergeStyles({ margin: "6px 0", padding: "0 0 0 2px", color: profile.ink }, sourceStyle))}">${content}</li>`;
+  return `<li${attributes} style="${styleText(mergeStyles({ margin: "6px 0", padding: "0 0 0 2px", color: profile.ink }, sourceStyle, markerStyle))}">${content}</li>`;
 }
 
 function preHtml(node, sourceStyle, profile) {
