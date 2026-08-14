@@ -497,6 +497,27 @@ function blockChildren(node, profile, inheritedStyle = {}) {
   return [...node.childNodes].map((child) => transformNode(child, profile, false, inheritedStyle)).join("");
 }
 
+function trimBlockEdgeMarkup(content) {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = content;
+  const isBlankEdge = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) return normalizeText(node.textContent).trim() === "";
+    if (node.nodeType !== Node.ELEMENT_NODE) return true;
+    if (node.tagName.toLowerCase() === "br") return true;
+    return normalizeText(node.textContent || "").trim() === "" && !node.querySelector("img,table,hr");
+  };
+
+  while (wrapper.firstChild && isBlankEdge(wrapper.firstChild)) wrapper.firstChild.remove();
+  while (wrapper.lastChild && isBlankEdge(wrapper.lastChild)) wrapper.lastChild.remove();
+  return wrapper.innerHTML.trim();
+}
+
+function fluidTextBlockStyle(style) {
+  const fluidStyle = { ...style };
+  delete fluidStyle.height;
+  return fluidStyle;
+}
+
 function transformNode(node, profile, inline = false, inheritedStyle = {}) {
   if (node.nodeType === Node.TEXT_NODE) return esc(normalizeText(node.textContent));
   if (node.nodeType !== Node.ELEMENT_NODE) return "";
@@ -511,10 +532,13 @@ function transformNode(node, profile, inline = false, inheritedStyle = {}) {
     return Object.keys(sourceStyle).length ? `<section style="${styleText(blockContainerStyle(sourceStyle, profile))}">${content}</section>` : content;
   }
 
-  const children = inlineChildren(node, profile, childInheritedStyle).trim();
+  let children = inlineChildren(node, profile, childInheritedStyle).trim();
 
-  if (!children && !["br", "img", "hr"].includes(tag)) return "";
   if (tag === "br") return "<br>";
+  if (["p", "div", "section", "article", "main", "figure", "blockquote", "li", "h1", "h2", "h3", "h4", "h5", "h6"].includes(tag)) {
+    children = trimBlockEdgeMarkup(children);
+  }
+  if (!children && !["img", "hr"].includes(tag)) return "";
 
   if (tag === "strong" || tag === "b") {
     if (profile.mode === "smart") {
@@ -745,7 +769,7 @@ function containsBlockElement(node) {
 }
 
 function blockContainerStyle(sourceStyle, profile) {
-  const containerStyle = { ...sourceStyle };
+  const containerStyle = fluidTextBlockStyle(sourceStyle);
   delete containerStyle.color;
   delete containerStyle["font-size"];
   delete containerStyle["font-weight"];
@@ -799,9 +823,10 @@ function insightHtml(content, profile) {
 }
 
 function paragraphHtml(content, sourceStyle, profile) {
+  const blockStyle = fluidTextBlockStyle(sourceStyle);
   if (profile.mode === "smart") {
     const body = defaultTextContent(content);
-    if (isSoftBackground(sourceStyle["background-color"])) {
+    if (isSoftBackground(blockStyle["background-color"])) {
       profile.keyMarks += 1;
       return `<p style="${styleText({
         margin: "0 0 18px",
@@ -834,7 +859,7 @@ function paragraphHtml(content, sourceStyle, profile) {
         "letter-spacing": "0",
         "text-align": "left",
       },
-      sourceStyle,
+      blockStyle,
     ),
   )}">${content}</p>`;
 }
@@ -894,7 +919,7 @@ function headingHtml(tag, content, sourceStyle, profile) {
     5: { margin: "16px 0 8px", "font-size": "16px", "line-height": "1.55", "font-weight": "700" },
     6: { margin: "14px 0 8px", "font-size": "15px", "line-height": "1.55", "font-weight": "700" },
   };
-  return `<${tag} style="${styleText(mergeStyles({ color: profile.ink, "letter-spacing": "0" }, defaults[level], sourceStyle))}">${content}</${tag}>`;
+  return `<${tag} style="${styleText(mergeStyles({ color: profile.ink, "letter-spacing": "0" }, defaults[level], fluidTextBlockStyle(sourceStyle)))}">${content}</${tag}>`;
 }
 
 function quoteHtml(content, sourceStyle, profile) {
@@ -924,7 +949,7 @@ function quoteHtml(content, sourceStyle, profile) {
         "border-left": `4px solid ${profile.accent}`,
         "line-height": "1.85",
       },
-      sourceStyle,
+      fluidTextBlockStyle(sourceStyle),
     ),
   )}">${content}</blockquote>`;
 }

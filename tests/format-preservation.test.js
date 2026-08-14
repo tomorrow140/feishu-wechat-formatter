@@ -52,7 +52,7 @@ const runnerHtml = `<!doctype html>
           .indent { text-indent: 2em; line-height: 2; }
           .accent { color: #d83931; font-size: 18px; font-weight: 700; }
           .center { text-align: center; font-family: "Songti SC", serif; }
-          .quote { border-left: 3px solid #d0d5dd; background-color: #f6f8fb; padding: 10px 12px; color: #475569; }
+          .quote { border-left: 3px solid #d0d5dd; background-color: #f6f8fb; padding: 10px 12px; color: #475569; height: 120px; }
           .feishu-seq-2 { display: list-item; list-style-type: decimal; counter-reset: list-item 1; }
           table td { color: #245bdb; font-size: 14px; background-color: #f2f5ff; }
         </style>
@@ -61,7 +61,7 @@ const runnerHtml = `<!doctype html>
           <p class="indent">正文段落需要保留字体、字号、颜色、行距和首行缩进。</p>
           <p>这一句里有 <span class="accent">红色重点</span>、<span style="background-color: #fff59d;">黄色高亮</span> 和 <strong>加粗文字</strong>。</p>
           <p>00 的感受：这类段落应该被公众号排版识别成单独的个人感受块，<span style="color: #245bdb;">内部蓝色也要回到正文色</span>。</p>
-          <blockquote class="quote">引用块需要保留左边框、背景和文字颜色，<span style="color: #245bdb;">引用内部蓝色也要回到正文色</span>。</blockquote>
+          <blockquote class="quote">引用块需要保留左边框、背景和文字颜色，<span style="color: #245bdb;">引用内部蓝色也要回到正文色</span>。<br><br></blockquote>
           <p class="center"><u>下划线文字</u>、<s>删除线文字</s>、<code style="color: #111827;">inline code</code>、<a href="https://example.com/demo">安全链接</a></p>
           <h2 class="feishu-seq-2" seq-level="auto" style="font-size: 20px; font-weight: 700;">搭建内容创作工作流，持续 Vibe Coding</h2>
           <ol start="1">
@@ -147,6 +147,7 @@ const runnerHtml = `<!doctype html>
             assert(includesAll(output, ["text-indent:2em", "line-height:2"]), "正文分段的缩进和行距应保留", output);
             assert(includesAll(output, ["color:#d83931", "font-size:18px", "font-weight:700"]), "重点文字颜色、字号和加粗应保留", output);
             assert(includesAll(output, ["background-color:#f6f8fb", "border-left:3px solid #d0d5dd", "color:#475569"]), "引用块的背景、左边框和文字颜色应保留", output);
+            assert(!output.includes("height:120px") && !output.includes("引用内部蓝色也要回到正文色</span>。<br>"), "文本块应移除飞书固定高度和段尾空换行", output);
             assert(includesAll(output, ["text-align:center", "font-family:Songti SC, serif"]), "居中对齐和字体族应保留", output);
             assert(includesAll(output, ["text-decoration:underline", "text-decoration:line-through"]), "下划线和删除线应保留", output);
             assert(output.includes("<code") && output.includes("inline code") && output.includes("color:#111827"), "行内代码和代码颜色应保留", output);
