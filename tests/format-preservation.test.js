@@ -134,11 +134,13 @@ const runnerHtml = `<!doctype html>
             frame.convert();
 
             const output = doc.querySelector("#preview").innerHTML;
+            const outputSection = doc.querySelector("#preview > section");
             const report = doc.querySelector("#formatReport").innerText;
             const sourceModeActive = doc.querySelector('[data-format-mode="source"]').classList.contains("active");
             const frameElement = document.querySelector("#app");
 
             assert(sourceModeActive, "默认模式应该是保持原格式");
+            assert(outputSection.style.padding === "28px 8px 34px", "输出容器应保留 8px 左右安全边距，避免公众号裁切贴边序号", outputSection.getAttribute("style"));
             assert(output.includes("岗位和角色在融合"), "应该保留正文内容", output);
             assert(!/<style|class=|data-lark/i.test(output), "输出不应保留 style/class/data-lark 等飞书或页面专用标记", output);
             assert(includesAll(output, ["color:rgb(36, 91, 219)", "font-size:26px", "font-weight:800"]), "标题颜色、字号、加粗应保留为内联样式", output);
@@ -183,6 +185,7 @@ const runnerHtml = `<!doctype html>
             assert(clipboardItem.types.includes("text/plain"), "剪贴板应包含 text/plain 纯文本");
             const copiedHtml = await clipboardItem.items["text/html"].text();
             const copiedPlain = await clipboardItem.items["text/plain"].text();
+            assert(copiedHtml.includes("padding:28px 8px 34px"), "复制到公众号的 HTML 应包含防裁切安全边距", copiedHtml);
             assert(copiedHtml.includes("font-size:26px") && copiedHtml.includes("text-indent:2em"), "复制到公众号的 HTML 应保留关键内联样式", copiedHtml);
             assert(copiedHtml.includes("background-color:#f6f8fb") && copiedHtml.includes('href="https://example.com/demo"'), "复制到公众号的 HTML 应保留引用块和链接", copiedHtml);
             assert(copiedHtml.includes('src="https://example.com/feishu-image.png"') && copiedHtml.includes("width:320px"), "复制到公众号的 HTML 应保留图片和图片样式", copiedHtml);

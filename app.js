@@ -1306,7 +1306,7 @@ function convert() {
   const body = [...root.childNodes].map((node) => transformNode(node, profile)).join("");
   lastOutputHtml = `<section style="${styleText({
     margin: "0 auto",
-    padding: "28px 0 34px",
+    padding: "28px 8px 34px",
     "max-width": "677px",
     "box-sizing": "border-box",
     background: profile.paper,
