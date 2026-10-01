@@ -46,3 +46,13 @@ node tests/format-preservation.test.js
 ```
 
 脚本会用 Chrome 打开页面，模拟飞书富文本粘贴，并确认字体、字号、颜色、分段、列表和表格样式都输出为公众号可用的内联样式；同时检查页面默认简洁、移动端无横向溢出，以及“复制到公众号”会写入 `text/html` 和 `text/plain`。
+
+界面交互回归使用 Playwright 和本机 Chrome：
+
+```bash
+node tests/ui-motion.test.js
+```
+
+需要在 Node 可解析的位置提供 `playwright`；使用独立依赖目录时，可通过 `NODE_PATH` 指向该目录的 `node_modules`。测试覆盖进入/退出动画、连续切换、折叠中断、复制内容隔离、减少动态效果、五档屏宽及图标加载，截图写入系统临时目录。
+
+界面动效集中在 `ui.js`，输出文章的内联样式不包含动效。工具栏使用本地 Lucide 图标（0.468.0），许可证见 `ui-icons/LICENSE`。

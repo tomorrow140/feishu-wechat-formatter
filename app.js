@@ -1271,7 +1271,7 @@ function parseColorToRgb(color) {
   return null;
 }
 
-function renderReport(profile) {
+function renderReport(profile, animate = true) {
   const colorItems = profile.colors.length
     ? profile.colors.map((color) => `<span class="color-chip"><i style="background:${esc(color)}"></i>${esc(color)}</span>`).join("")
     : '<span class="muted-line">未检测到显式颜色</span>';
@@ -1282,7 +1282,7 @@ function renderReport(profile) {
     ? profile.blocks.map(([name, count]) => `<span class="metric-pill">${name} ${count}</span>`).join("")
     : '<span class="muted-line">暂无块级结构</span>';
 
-  formatReport.innerHTML = `
+  replaceUiContent(formatReport, `
     <div class="report-section">
       <span class="report-label">排版模式</span>
       <strong>${profile.mode === "smart" ? `公众号一键排版 · ${esc(profile.styleLabel)}` : "保持飞书原格式"}</strong>
@@ -1308,14 +1308,14 @@ function renderReport(profile) {
       <span>表格 ${profile.tables}</span>
       <span>链接 ${profile.links}</span>
     </div>
-  `;
+  `, animate);
 }
 
-function convert() {
+function convert({ animate = true } = {}) {
   let sourceHtml = rawEditor.innerHTML;
 
   if (isEmptyHtml(sourceHtml)) {
-    renderEmpty();
+    renderEmpty(animate);
     return;
   }
 
@@ -1339,13 +1339,15 @@ function convert() {
     "font-family": profile.font,
   })}">${body}</section>`;
 
-  preview.innerHTML = lastOutputHtml;
-  renderReport(profile);
-  updateStats();
+  preview.classList.remove("is-empty");
+  replaceUiContent(preview, lastOutputHtml, animate);
+  renderReport(profile, animate);
+  updateContentControls(true);
+  updateStats(animate);
   setStatus("已按当前飞书文档格式转换，可复制到公众号后台。");
 }
 
-function renderEmpty() {
+function renderEmpty(animate = true) {
   lastOutputHtml = `<section style="${styleText({
     padding: "32px 0",
     background: baseDocumentStyle.paper,
@@ -1353,20 +1355,42 @@ function renderEmpty() {
     "font-family": baseDocumentStyle.font,
     "line-height": "1.8",
   })}"><p style="${styleText({ margin: "0", "font-size": "15px", color: baseDocumentStyle.muted })}">${EMPTY_MESSAGE}</p></section>`;
-  preview.innerHTML = lastOutputHtml;
-  formatReport.innerHTML = '<div class="empty-report">粘贴飞书文档后，会在这里显示识别到的样式。</div>';
+  replaceUiContent(preview, lastOutputHtml, animate);
+  preview.classList.add("is-empty");
+  replaceUiContent(formatReport, '<div class="empty-report">粘贴飞书文档后，会在这里显示识别到的样式。</div>', animate);
+  updateContentControls(false);
   wordCount.textContent = "0 字";
   blockCount.textContent = "0 段";
 }
 
-function updateStats() {
+function updateStats(animate = true) {
   const text = preview.innerText.replace(/\s/g, "");
-  wordCount.textContent = `${text.length} 字`;
-  blockCount.textContent = `${preview.querySelectorAll("p,h1,h2,h3,h4,h5,h6,li,blockquote,pre,table").length} 段`;
+  replaceUiContent(wordCount, `${text.length} 字`, animate);
+  replaceUiContent(blockCount, `${preview.querySelectorAll("p,h1,h2,h3,h4,h5,h6,li,blockquote,pre,table").length} 段`, animate);
 }
 
 function setStatus(message) {
-  statusText.textContent = message;
+  replaceUiContent(statusText, esc(message));
+}
+
+function updateContentControls(hasContent) {
+  ["copyRich", "copyRichSecondary", "copyHtml", "clearButton"].forEach((id) => {
+    document.getElementById(id).disabled = !hasContent;
+  });
+}
+
+function syncFormatControls() {
+  document.querySelector(".mode-switch").dataset.mode = currentFormatMode;
+  modeButtons.forEach((item) => {
+    const active = item.dataset.formatMode === currentFormatMode;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-pressed", String(active));
+  });
+  styleButtons.forEach((item) => {
+    const active = item.dataset.wechatStyle === currentWechatStyle && currentFormatMode === "smart";
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-pressed", String(active));
+  });
 }
 
 async function copyRich() {
@@ -1405,7 +1429,7 @@ function fallbackCopyHtml() {
 }
 
 async function copyHtmlSource() {
-  if (!lastOutputHtml) return;
+  if (!lastOutputHtml || preview.classList.contains("is-empty")) return;
   try {
     await navigator.clipboard.writeText(lastOutputHtml);
     setStatus("已复制 HTML 源码。");
@@ -1434,13 +1458,13 @@ async function pasteFromClipboard() {
     const items = await navigator.clipboard.read();
     for (const item of items) {
       if (item.types.includes("text/html")) {
-        rawEditor.innerHTML = await (await item.getType("text/html")).text();
+        replaceUiContent(rawEditor, await (await item.getType("text/html")).text());
         convert();
         setStatus("已读取剪贴板中的富文本，并按原文格式转换。");
         return;
       }
       if (item.types.includes("text/plain")) {
-        rawEditor.innerHTML = plainTextToHtml(await (await item.getType("text/plain")).text());
+        replaceUiContent(rawEditor, plainTextToHtml(await (await item.getType("text/plain")).text()));
         convert();
         setStatus("已读取剪贴板中的纯文本，并补齐基础排版。");
         return;
@@ -1451,17 +1475,17 @@ async function pasteFromClipboard() {
   }
 }
 
-rawEditor.addEventListener("input", convert);
+rawEditor.addEventListener("input", (event) => convert({ animate: ["insertFromPaste", "insertFromDrop"].includes(event.inputType) }));
 rawEditor.addEventListener("paste", () => window.setTimeout(convert, 0));
 document.querySelector("#pasteButton").addEventListener("click", pasteFromClipboard);
 document.querySelector("#clearButton").addEventListener("click", () => {
-  rawEditor.innerHTML = "";
+  replaceUiContent(rawEditor, "");
   convert();
   rawEditor.focus();
   setStatus("已清空。");
 });
 document.querySelector("#loadSample").addEventListener("click", () => {
-  rawEditor.innerHTML = sampleHtml;
+  replaceUiContent(rawEditor, sampleHtml);
   convert();
 });
 document.querySelector("#copyRich").addEventListener("click", copyRich);
@@ -1470,30 +1494,18 @@ document.querySelector("#copyHtml").addEventListener("click", copyHtmlSource);
 modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     currentFormatMode = button.dataset.formatMode;
-    modeButtons.forEach((item) => {
-      const active = item.dataset.formatMode === currentFormatMode;
-      item.classList.toggle("active", active);
-      item.setAttribute("aria-selected", String(active));
-    });
+    syncFormatControls();
     convert();
   });
 });
 styleButtons.forEach((button) => {
   button.addEventListener("click", () => {
     currentWechatStyle = button.dataset.wechatStyle;
-    styleButtons.forEach((item) => {
-      item.classList.toggle("active", item.dataset.wechatStyle === currentWechatStyle);
-    });
-    if (currentFormatMode !== "smart") {
-      currentFormatMode = "smart";
-      modeButtons.forEach((item) => {
-        const active = item.dataset.formatMode === currentFormatMode;
-        item.classList.toggle("active", active);
-        item.setAttribute("aria-selected", String(active));
-      });
-    }
+    currentFormatMode = "smart";
+    syncFormatControls();
     convert();
   });
 });
 
-renderEmpty();
+syncFormatControls();
+renderEmpty(false);

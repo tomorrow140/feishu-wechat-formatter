@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>飞书转公众号排版工具</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20261002-workspace" />
   </head>
   <body>
     <div class="app-shell">
@@ -15,8 +15,8 @@
           <h1>飞书转公众号排版工具</h1>
         </div>
         <div class="topbar-actions" aria-label="全局操作">
-          <button class="ghost-button" id="loadSample" type="button">载入示例</button>
-          <button class="primary-button" id="copyRich" type="button">复制到公众号</button>
+          <button class="ghost-button" id="loadSample" type="button"><img class="ui-icon" src="./ui-icons/file-text.svg" alt="" />载入示例</button>
+          <button class="primary-button" id="copyRich" type="button"><img class="ui-icon" src="./ui-icons/copy.svg" alt="" />复制到公众号</button>
         </div>
       </header>
 
@@ -30,6 +30,7 @@
         </div>
         <details class="intro-details">
           <summary>查看实现逻辑</summary>
+          <div class="intro-expansion">
           <div class="intro-points" aria-label="核心亮点">
             <div>
               <strong>保持原格式</strong>
@@ -50,6 +51,7 @@
             <span>补齐样式</span>
             <span>公众号富文本</span>
           </div>
+          </div>
         </details>
       </section>
 
@@ -61,8 +63,8 @@
               <h2 id="sourceTitle">粘贴飞书正文</h2>
             </div>
             <div class="tool-row">
-              <button class="icon-button" id="pasteButton" type="button" title="读取剪贴板">粘贴</button>
-              <button class="icon-button" id="clearButton" type="button" title="清空内容">清空</button>
+              <button class="icon-button" id="pasteButton" type="button" title="读取剪贴板" aria-label="粘贴"><img class="ui-icon" src="./ui-icons/clipboard-paste.svg" alt="" /></button>
+              <button class="icon-button" id="clearButton" type="button" title="清空内容" aria-label="清空"><img class="ui-icon" src="./ui-icons/trash-2.svg" alt="" /></button>
             </div>
           </div>
           <div
@@ -72,6 +74,8 @@
             spellcheck="false"
             data-placeholder="从飞书文档全选复制后，直接粘贴到这里。"
             aria-label="粘贴飞书正文"
+            role="textbox"
+            aria-multiline="true"
           ></div>
         </section>
 
@@ -82,9 +86,9 @@
               <h2 id="formatTitle">格式识别</h2>
             </div>
           </div>
-          <div class="mode-switch" role="tablist" aria-label="排版模式">
-            <button class="mode-button" type="button" data-format-mode="smart" role="tab" aria-selected="false">公众号排版</button>
-            <button class="mode-button active" type="button" data-format-mode="source" role="tab" aria-selected="true">保持原格式</button>
+          <div class="mode-switch" role="group" aria-label="排版模式" data-mode="source">
+            <button class="mode-button" type="button" data-format-mode="smart" aria-pressed="false">公众号排版</button>
+            <button class="mode-button active" type="button" data-format-mode="source" aria-pressed="true">保持原格式</button>
           </div>
           <div class="style-switch" aria-label="公众号排版风格">
             <button class="style-button active" type="button" data-wechat-style="tech">
@@ -120,21 +124,23 @@
               <h2 id="previewTitle">公众号预览</h2>
             </div>
             <div class="tool-row">
-              <button class="ghost-button" id="copyHtml" type="button">复制 HTML</button>
-              <button class="primary-button" id="copyRichSecondary" type="button">复制富文本</button>
+              <button class="icon-button" id="copyHtml" type="button" title="复制 HTML" aria-label="复制 HTML"><img class="ui-icon" src="./ui-icons/code-xml.svg" alt="" /></button>
+              <button class="ghost-button" id="copyRichSecondary" type="button"><img class="ui-icon" src="./ui-icons/copy.svg" alt="" />复制富文本</button>
             </div>
           </div>
           <div class="preview-wrap">
-            <article id="preview" class="wechat-preview" aria-live="polite"></article>
+            <article id="preview" class="wechat-preview" aria-label="公众号文章预览"></article>
           </div>
         </section>
       </main>
 
       <footer class="statusbar">
-        <span id="statusText">准备好了：粘贴飞书正文后会自动转换。</span>
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="statusText" role="status">准备好了：粘贴飞书正文后会自动转换。</span>
       </footer>
     </div>
 
-    <script src="./app.js?v=20260814-trim-block-gaps"></script>
+    <script src="./ui.js?v=20261002-workspace"></script>
+    <script src="./app.js?v=20261002-workspace"></script>
   </body>
 </html>
